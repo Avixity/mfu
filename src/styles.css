@@ -1204,6 +1204,19 @@ input[type="range"] {
   border-bottom: 1px solid var(--line);
 }
 
+.timeline-entry__role {
+  display: inline-flex;
+  margin: 0 0 0.75rem;
+  padding: 0.28rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--line));
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
 .timeline-entry__kicker {
   margin: 0 0 0.5rem;
   color: var(--muted);

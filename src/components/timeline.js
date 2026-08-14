@@ -164,14 +164,83 @@ function buildDemo(item) {
   return wrapper;
 }
 
+function preferredYearEntry(timeline, year) {
+  const matches = timeline.filter((item) => Number(item.year) === Number(year));
+  return matches.find((item) => item.birthYearDefault !== false) || matches[0] || null;
+}
+
+function storyKey(item) {
+  return String(item.title).trim().toLowerCase();
+}
+
+/**
+ * Keep the long-form timeline concise while guaranteeing that the visitor's
+ * exact birth year and the present year are represented. Each lifetime decade
+ * also receives one different story; a designated decade feature is preferred,
+ * with a midpoint-near fallback when that feature would duplicate a special year.
+ */
+export function selectTimelineEntries(timeline, birthYear, currentYear = new Date().getFullYear()) {
+  if (!Array.isArray(timeline)) throw new TypeError('Timeline data must be an array.');
+  const startYear = Math.trunc(Number(birthYear));
+  const endYear = Math.trunc(Number(currentYear));
+  if (!Number.isFinite(startYear) || !Number.isFinite(endYear) || startYear > endYear) return [];
+
+  const eligible = timeline
+    .filter((item) => Number.isInteger(Number(item.year)) && item.year >= startYear && item.year <= endYear)
+    .sort((first, second) => first.year - second.year || String(first.title).localeCompare(String(second.title)));
+  const chosen = [];
+  const usedStories = new Set();
+  const usedItems = new Set();
+  const reservedYears = new Set([startYear, endYear]);
+
+  const add = (item, role, roleLabel) => {
+    if (!item) return false;
+    const key = storyKey(item);
+    const itemKey = `${item.year}|${key}`;
+    if (usedStories.has(key) || usedItems.has(itemKey)) return false;
+    usedStories.add(key);
+    usedItems.add(itemKey);
+    chosen.push({ ...item, timelineRole: role, timelineRoleLabel: roleLabel });
+    return true;
+  };
+
+  const birthEntry = preferredYearEntry(eligible, startYear);
+  const presentEntry = preferredYearEntry(eligible, endYear);
+  if (startYear === endYear) {
+    add(birthEntry || presentEntry, 'birth-present', 'Your birth year · Present year');
+  } else {
+    add(birthEntry, 'birth', 'Your birth year');
+    add(presentEntry, 'present', 'Present year');
+  }
+
+  const firstDecade = Math.floor(startYear / 10) * 10;
+  const lastDecade = Math.floor(endYear / 10) * 10;
+  for (let decade = firstDecade; decade <= lastDecade; decade += 10) {
+    const midpoint = decade + 5;
+    const candidates = eligible
+      .filter((item) => item.year >= decade && item.year <= decade + 9 && !reservedYears.has(item.year) && !usedStories.has(storyKey(item)))
+      .sort((first, second) => {
+        if (Boolean(first.decadeFeature) !== Boolean(second.decadeFeature)) return first.decadeFeature ? -1 : 1;
+        if (Boolean(first.birthYearDefault !== false) !== Boolean(second.birthYearDefault !== false)) {
+          return first.birthYearDefault !== false ? -1 : 1;
+        }
+        return Math.abs(first.year - midpoint) - Math.abs(second.year - midpoint) || first.year - second.year;
+      });
+    add(candidates[0], 'decade', `${decade}s`);
+  }
+
+  return chosen.sort((first, second) => first.year - second.year || first.timelineRole.localeCompare(second.timelineRole));
+}
+
 export function renderTimeline(container, timeline, birthYear, currentYear = new Date().getFullYear()) {
   container.replaceChildren();
-  const entries = timeline.filter((item) => item.year >= Math.max(2011, birthYear) && item.year <= currentYear);
+  const entries = selectTimelineEntries(timeline, birthYear, currentYear);
   for (const item of entries) {
     const article = element('article', 'timeline-entry reveal');
     article.append(element('div', 'timeline-entry__year', String(item.year)));
     const content = element('div', 'timeline-entry__content');
     content.append(
+      element('p', 'timeline-entry__role', item.timelineRoleLabel),
       element('p', 'timeline-entry__kicker', item.label || (item.year === 2026 ? 'Mathematics in 2026 so far' : `A mathematical story from ${item.year}`)),
       element('h3', '', item.title),
       element('p', 'timeline-entry__people', item.people || item.mathematician || item.team),

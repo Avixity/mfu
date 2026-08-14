@@ -52,10 +52,14 @@ async function loadLocalJson(url, label) {
   return response.json();
 }
 
-const [worldData, timelineData] = await Promise.all([
+const [worldData, timeline1900To1949, timeline1950To1999, timeline2000To2026] = await Promise.all([
   loadLocalJson(new URL('./data/world-data.json', import.meta.url), 'world data'),
-  loadLocalJson(new URL('./data/math-timeline.json', import.meta.url), 'mathematics timeline'),
+  loadLocalJson(new URL('./data/math-timeline-1900-1949.json', import.meta.url), '1900–1949 mathematics timeline'),
+  loadLocalJson(new URL('./data/math-timeline-1950-1999.json', import.meta.url), '1950–1999 mathematics timeline'),
+  loadLocalJson(new URL('./data/math-timeline-2000-2026.json', import.meta.url), '2000–2026 mathematics timeline'),
 ]);
+const timelineData = [...timeline1900To1949, ...timeline1950To1999, ...timeline2000To2026]
+  .sort((first, second) => first.year - second.year || String(first.title).localeCompare(String(second.title)));
 
 const STORAGE_KEY = 'mathematics-of-you.birth-date';
 const MINIMUM_BIRTH_YEAR = 1900;
@@ -2458,13 +2462,18 @@ function calculateLife(dateValue, { scroll = true, preservedModel = null } = {})
   renderStats(dom.spaceStats, buildSpaceStats(state.space));
 
   const currentYear = Math.min(now.getFullYear(), Math.max(...timelineData.map(({ year }) => year)));
-  renderTimeline(dom.timelineList, timelineData, birth.year, currentYear);
-  if (birth.year < 2011) {
-    dom.timelineNote.hidden = false;
-    dom.timelineNote.textContent = 'The curated, verified timeline begins in 2011. Earlier years are not invented, so the story starts there.';
-  } else {
-    dom.timelineNote.hidden = true;
-  }
+  const displayedTimelineStories = renderTimeline(dom.timelineList, timelineData, birth.year, currentYear);
+  dom.timelineNote.hidden = false;
+  const specialYearsText = birth.year === currentYear
+    ? `your birth year, which is also ${currentYear}`
+    : `your birth year (${birth.year}), the present year (${currentYear})`;
+  const requiredYearStories = birth.year === currentYear ? 1 : 2;
+  const lifetimeDecades = Math.floor(currentYear / 10) - Math.floor(birth.year / 10) + 1;
+  const edgeDecades = Math.max(0, lifetimeDecades - (displayedTimelineStories - requiredYearStories));
+  const edgeDecadeNote = edgeDecades === 0
+    ? ''
+    : ` The required ${birth.year === currentYear ? 'combined birth/present card represents' : 'birth and present cards represent'} ${edgeDecades === 1 ? 'the remaining edge decade' : 'the remaining edge decades'}.`;
+  dom.timelineNote.textContent = `${displayedTimelineStories} distinct stories are shown: ${specialYearsText}, plus one different feature from each lifetime decade with another eligible year.${edgeDecadeNote} The offline catalogue contains a sourced story for every year from 1900 through ${currentYear}.`;
 
   setupEstimateLab(preservedModel);
   renderReport();

@@ -2,7 +2,7 @@
 
 **Your entire life, expressed through numbers.**
 
-The Mathematics of You is an offline-first, interactive mathematical story for a mathematics exhibition. A visitor enters a date of birth. The site turns that input into calendar arithmetic, biological models, number properties, India-focused world-data comparisons, orbital journeys, a year-by-year mathematics timeline, an adjustable Estimate Lab, and a printable or downloadable report.
+The Mathematics of You is an offline-first, interactive mathematical story for a mathematics exhibition. A visitor enters a date of birth. The site turns that input into calendar arithmetic, biological models, number properties, India-focused world-data comparisons, orbital journeys, a curated mathematics-history thread, an adjustable Estimate Lab, and a printable or downloadable report.
 
 The project is deliberately not a dashboard. It uses large editorial sentences, natural scrolling, restrained section colours, CSS/SVG illustrations, and a reusable **Show the maths** bottom sheet. Every narrative statistic exposes its classification, formula, substituted values, units, assumptions, uncertainty, and source.
 
@@ -31,7 +31,7 @@ Results use the visitor's selected date and the device's current calendar date, 
 - Frozen local JSON data for India, the world, atmospheric CO2, inflation, purchasing power, literacy, life expectancy, electricity, Internet use, and the NIFTY 50. Historical benchmarks and modern annual series are stored separately so a 1900 visitor receives useful calculations without a modern record being relabelled as a 1900 measurement.
 - A dependency-free SVG population chart.
 - Seven space calculations using documented mean rates and periods.
-- One sourced mathematical story for every year from 2011 through 2026, filtered to the visitor's lifetime.
+- An offline catalogue with one primary sourced mathematical story for every year from 1900 through 2026, plus enough distinct bonus stories to give every decade at least ten choices. The narrative always shows the visitor's birth year and 2026, then adds a different feature for each lifetime decade with another eligible year, without repeating a story.
 - An Estimate Lab with instant recalculation, a difference-from-default readout, a sensitivity curve, and a projected-lifespan model.
 - An accessible reusable maths bottom sheet, a print-specific one- or two-page A4 report, and a self-contained offline HTML report download.
 - Reduced-motion support, keyboard focus styles, semantic controls, and responsive layouts for phones through exhibition screens.
@@ -145,12 +145,14 @@ This is a lightweight Vite project using semantic HTML, CSS, and vanilla ES modu
 | `src/calculations/world.js` | Interpolation, non-extrapolating comparison-window selection, annual-series comparisons, CPI ratios, compounding, and chart coordinates. |
 | `src/calculations/space.js` | Unit-safe speed, orbit, lunar-cycle, recession, and equatorial comparison calculations. |
 | `src/components/math-modal.js` | Reusable data-driven bottom sheet, focus trap, Escape handling, source links, and focus restoration. |
-| `src/components/timeline.js` | Lifetime filtering, timeline rendering, and lightweight “Understand it” demonstrations. |
+| `src/components/timeline.js` | Birth-year, present-year, and lifetime-decade story selection; de-duplication; rendering; and lightweight “Understand it” demonstrations. |
 | `src/components/estimate-lab.js` | Adjustable controls, live functions, default deltas, gradients, and SVG sensitivity charts. |
 | `src/utils/format.js` | Full, compact, scientific, percent, distance, significant-digit, and unit-conversion formatting. |
 | `src/utils/dom.js` | Intersection-based reveal and number animation helpers with reduced-motion handling. |
 | `src/data/world-data.json` | Frozen annual observations, units, source metadata, access dates, interpolation policy, and limitations. |
-| `src/data/math-timeline.json` | Sixteen sourced stories for 2011–2026 and optional demonstration metadata. |
+| `src/data/math-timeline-1900-1949.json` | Primary sourced stories for 1900–1949, designated decade features, and optional demonstration metadata. |
+| `src/data/math-timeline-1950-1999.json` | Primary sourced stories for 1950–1999, designated decade features, and optional demonstration metadata. |
+| `src/data/math-timeline-2000-2026.json` | Primary sourced stories for 2000–2026, designated decade features, bonus 2020s stories, and optional demonstration metadata. |
 | `tests/` | Unit tests plus the local browser audit script. |
 
 ## Calculation classifications
@@ -276,7 +278,7 @@ The interpolation utility uses `y0 + ((x - x0) / (x1 - x0)) x (y1 - y0)` only be
 | Birthday-room sensitivity | Exact within simplified model | `100 x (1 - (364/365)^(n-1))` | The Lab charts the visitor-specific match probability. |
 | Share of a modelled lifespan | Projected | `100 x ((D + p) / 365.2425) / expected lifespan` | Default lifespan is 80 years and is adjustable from 50 to 110; it is a scenario, not a forecast. |
 
-The mathematics timeline is curated historical content rather than a personal statistic, so the calculation label system is not applied to its story cards. Each card still includes a source link and avoids subjective “greatest breakthrough” language.
+The mathematics timeline is curated historical content rather than a personal statistic, so the calculation label system is not applied to its story cards. At runtime, it selects the visitor's birth-year story, the 2026 present-year story, and one separate feature for each lifetime decade that contains another eligible year. The two required cards represent edge decades when no different post-birth year exists. Birth and present years are reserved before decade selection, and titles are de-duplicated, so one discovery never fills two positions. Each card still includes a source link and avoids subjective “greatest breakthrough” language.
 
 ## Assumptions and conventions
 
@@ -359,7 +361,8 @@ Resetting the Lab restores its visitor-specific defaults. Changed values update 
 - Birth-date arrangements use the eight digits of `YYYYMMDD`; repeated digits divide the `8!` permutations.
 - Standard Roman numeral rendering stops at 3,999 rather than inventing an extended notation.
 - 11 March 2020 is used because WHO characterised COVID-19 as a pandemic on that date. It is a calculation boundary, not a claim that the pandemic began everywhere on one day.
-- The timeline begins in 2011. Visitors born earlier see a transparent coverage note; earlier stories are not invented.
+- The offline catalogue has one primary sourced story for every year from 1900 through 2026. Complete decades contain one primary story per year; three additional 2020s entries bring that incomplete decade to ten distinct choices.
+- The scrolling timeline intentionally shows a selection rather than all 127 years: the birth year, 2026, and one different story for each lifetime decade with another eligible post-birth year. The required birth or present card represents an edge decade when no different year remains. If a designated decade feature would duplicate a reserved birth or present year, selection falls back to another story from that decade.
 - The 2026 entry is labelled **Mathematics in 2026 so far** because the year is incomplete.
 
 ### World-data conventions
@@ -429,24 +432,25 @@ Most biological constants other than sleep are presented honestly as explicit ed
 
 ### Mathematics timeline sources
 
-| Year | Story source |
-| ---: | --- |
-| 2011 | [John Pardon, “On the distortion of knots on embedded surfaces” — Annals of Mathematics](https://annals.math.princeton.edu/2011/174-1/p21) |
-| 2012 | [Peter Scholze, “Perfectoid Spaces” — Publications Mathematiques de l'IHES](https://pmihes.centre-mersenne.org/articles/10.1007/s10240-012-0042-x/) |
-| 2013 | [“Together and Alone, Closing the Prime Gap” — Quanta Magazine](https://www.quantamagazine.org/mathematicians-team-up-on-twin-primes-conjecture-20131119/) |
-| 2014 | [Fields Medals 2014 — International Mathematical Union](https://www.mathunion.org/imu-awards/fields-medal/fields-medals-2014) |
-| 2015 | [Terence Tao, “The Erdos discrepancy problem”](https://arxiv.org/abs/1509.05363) |
-| 2016 | [“Sphere Packing Solved in Higher Dimensions” — Quanta Magazine](https://www.quantamagazine.org/sphere-packing-solved-in-higher-dimensions-20160330/) |
-| 2017 | [“A Long-Sought Proof, Found and Almost Lost” — Quanta Magazine](https://www.quantamagazine.org/statistician-proves-gaussian-correlation-inequality-20170328/) |
-| 2018 | [“Major Quantum Computing Advance Made Obsolete by Teenager” — Quanta Magazine](https://www.quantamagazine.org/teenager-finds-classical-alternative-to-quantum-recommendation-algorithm-20180731/) |
-| 2019 | [MIT School of Science: sum-of-three-cubes solution for 42](https://science.mit.edu/sutherland-helps-solve-decades-old-sum-of-three-cubes-puzzle/) |
-| 2020 | [Lisa Piccirillo, “The Conway knot is not slice” — Annals of Mathematics](https://annals.math.princeton.edu/2020/191-2/p05) |
-| 2021 | [“Mathematicians Find Long-Sought Building Blocks for Special Polynomials” — Quanta Magazine](https://www.quantamagazine.org/mathematicians-find-polynomial-building-blocks-hilbert-sought-20210525/) |
-| 2022 | [Stanford Mathematics: Park and Pham prove the Kahn–Kalai conjecture](https://mathematics.stanford.edu/news/jinyoung-park-and-huy-tuan-pham-prove-kahn-kalai-conjecture) |
-| 2023 | [“An aperiodic monotile” — Combinatorial Theory](https://doi.org/10.5070/C64163843) |
-| 2024 | [Max Planck Institute for Mathematics: geometric Langlands breakthrough](https://www.mpim-bonn.mpg.de/node/13308) |
-| 2025 | [Hong Wang and Joshua Zahl, “Volume estimates for unions of convex sets, and the Kakeya set conjecture in three dimensions”](https://arxiv.org/abs/2502.17655) |
-| 2026 | [Fields Medals 2026 — International Mathematical Union](https://www.mathunion.org/imu-awards/fields-medal/fields-medals-2026) |
+The three local timeline files contain the full citation record for every story: source title, direct source URL, people or team, field, student-level explanation, and why the result matters. The catalogue uses mathematical-history chronologies for broad historical coverage alongside original papers, journals, learned societies, universities, and international mathematics organisations. Keeping each citation beside its story makes the offline snapshot auditable without forcing 130 source links into this README.
+
+The designated decade features below are the first choice for the concise runtime timeline. When one is already being used as the visitor's birth-year or present-year story, the selector chooses a different sourced entry from that decade.
+
+| Decade | Designated feature | Source |
+| ---: | --- | --- |
+| 1900s | A simple curve grows to infinite length | [Acta Mathematica](https://doi.org/10.1007/BF02418570) |
+| 1910s | How little space can a turning needle use? | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/29/) |
+| 1920s | A cube becomes a one-dimensional sponge | [London Mathematical Society](https://www.lms.ac.uk/sites/default/files/Mathematics/MPU/summer_exhibition07.pdf) |
+| 1930s | Two forbidden networks explain every crossing | [Historia Mathematica](https://doi.org/10.1016/0315-0860(85)90045-X) |
+| 1940s | Information becomes a measurable quantity | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/32/) |
+| 1950s | A sphere can be smooth in more than one way | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/33/) |
+| 1960s | The continuum hypothesis is independent | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/34/) |
+| 1970s | Four colours are enough | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/35/) |
+| 1980s | The Mordell conjecture is proved | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/36/) |
+| 1990s | Fermat's Last Theorem is proved | [MacTutor History of Mathematics](https://mathshistory.st-andrews.ac.uk/Chronology/37/) |
+| 2000s | Prime numbers contain patterns of any length | [Ben Green and Terence Tao](https://arxiv.org/abs/math/0404188) |
+| 2010s | The densest packing in eight dimensions | [Annals of Mathematics](https://annals.math.princeton.edu/2017/185-3/p07) |
+| 2020s | One tile that can never repeat | [Combinatorial Theory](https://doi.org/10.5070/C64163843) |
 
 ## Privacy
 
@@ -459,7 +463,7 @@ Most biological constants other than sleep are presented honestly as explicit ed
 
 ## Testing
 
-The unit suite currently contains **51 tests across six files**:
+The unit suite currently contains **58 tests across seven files**:
 
 - Gregorian leap years, impossible and future dates, UTC whole-day differences, exact calendar age, 29 February anniversaries, weekday/leap-day counts, date-based sub-day modelling, and century percentages;
 - prime detection, complete prime factorisation, divisor count/sum, palindromes, triangular/square/Fibonacci tests, digital roots, Roman numerals, special-number milestones, digit arrangements, and both birthday probabilities;
@@ -467,6 +471,7 @@ The unit suite currently contains **51 tests across six files**:
 - live time-of-day conversion, newborn sleep, biological counter-rate propagation, DST transitions, and midnight continuity;
 - orbital distance, Earth/Moon/galactic calculations, lunar recession, interpolation without extrapolation, honest comparison-window modes for pre-series and post-release birthdays, fiscal-year labels, CPI ratios, compound inflation, number formatting, scientific notation, rounding, and compatible unit conversions;
 - metadata and finite comparison-window coverage for every stored world series for a 1900 birthday, including explicit tests that the 1901 Indian census anchor and ranged 1900 world-population estimate are not mislabelled as exact 1900 measurements.
+- complete 1900–2026 timeline coverage, at least ten distinct stories per decade, designated features, retained teaching interactions, and duplicate-free birth/present/decade selection.
 
 Run the automated checks with:
 
@@ -493,7 +498,7 @@ The checked-in cases include birthdays on 1 January 1900, 18 July 2011, 29 Febru
 - Physical journey values use rounded mean rates, omit the current partial day, and do not model elliptical orbits, changing galactic velocity, or a visitor's latitude.
 - The expected-lifespan percentage is a scenario only. It must not be interpreted as lifespan or health advice.
 - Roman numerals are limited to 1–3,999.
-- The curated timeline starts in 2011 and the 2026 card describes the year only so far. Its interactive illustrations are teaching analogies, not proofs.
+- The catalogue begins in 1900, matching the supported birthday range; it does not claim coverage before that year. The runtime timeline is intentionally selective, every story is a representative mathematical development rather than a claim about the decade's “greatest” result, and the 2026 card describes the year only so far. Interactive illustrations are teaching analogies, not proofs.
 - The browser audit's Chrome/Edge discovery is currently Windows-specific and assumes standard installation paths. Unit tests and the site itself are cross-platform.
 - The production build needs a local HTTP server; direct `file://` opening is not supported. External citations naturally cannot be opened while disconnected.
 - Print pagination and printer margins can vary slightly by browser and printer, although the stylesheet targets one or two A4 pages.

@@ -98,6 +98,18 @@ async function waitForExpression(cdp, expression, attempts = 100) {
   throw new Error(`Timed out waiting for expression: ${expression}`);
 }
 
+async function stopChildProcess(child) {
+  if (!child || child.exitCode !== null) return;
+  const exited = new Promise((resolve) => child.once('exit', resolve));
+  child.kill();
+  await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 750))]);
+  if (child.exitCode === null) {
+    child.kill('SIGKILL');
+    await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 750))]);
+  }
+  child.unref();
+}
+
 try {
   await waitFor(baseUrl);
   chrome = spawn(chromePath, [
@@ -234,7 +246,7 @@ try {
     width: 1366, height: 900, deviceScaleFactor: 1, mobile: false,
   });
   await evaluate(cdp, `document.documentElement.style.scrollBehavior = 'auto'`);
-  for (const sectionId of ['time', 'fingerprint', 'world', 'estimate-lab', 'report']) {
+  for (const sectionId of ['time', 'fingerprint', 'world', 'timeline', 'estimate-lab', 'report']) {
     await evaluate(cdp, `document.querySelector('#${sectionId}').scrollIntoView()`);
     await new Promise((resolve) => setTimeout(resolve, 900));
     const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
@@ -293,9 +305,15 @@ try {
     timelineButtons.forEach(button => button.click());
     const timelineOpened = timelineButtons.every(button => button.getAttribute('aria-expanded') === 'true')
       && [...document.querySelectorAll('.timeline-demo .demo-stage')].every(stage => !stage.hidden);
+    const timelineDemoStagesPopulated = [...document.querySelectorAll('.timeline-demo .demo-stage')]
+      .every(stage => stage.childElementCount > 0);
     const customTimelineVisuals = document.querySelectorAll('.timeline-demo-svg, .demo-control-row, .prime-gap-row, .cube-equation').length;
     timelineButtons.forEach(button => button.click());
     const timelineClosed = timelineButtons.every(button => button.getAttribute('aria-expanded') === 'false');
+    const timelineEntries = [...document.querySelectorAll('.timeline-entry')];
+    const timelineRoles = timelineEntries.map(entry => entry.querySelector('.timeline-entry__role')?.textContent.trim());
+    const timelineYears = timelineEntries.map(entry => entry.querySelector('.timeline-entry__year')?.textContent.trim());
+    const timelineTitles = timelineEntries.map(entry => entry.querySelector('h3')?.textContent.trim());
     return {
       estimateControlCount: controls.length,
       allEstimateOutputsRendered: outputTitles.length === controls.length && outputTitles.every(Boolean),
@@ -304,7 +322,13 @@ try {
       timelineDemoCount: timelineButtons.length,
       timelineOpened,
       timelineClosed,
-      customTimelineVisuals
+      timelineDemoStagesPopulated,
+      customTimelineVisuals,
+      timelineEntryCount: timelineEntries.length,
+      timelineBirthPresentIncluded: timelineRoles.includes('Your birth year') && timelineRoles.includes('Present year'),
+      timelineDecadeCount: timelineRoles.filter(role => /^20(?:1|2)0s$/.test(role)).length,
+      timelineYearsUnique: new Set(timelineYears).size === timelineYears.length,
+      timelineTitlesUnique: new Set(timelineTitles).size === timelineTitles.length
     };
   })()`);
 
@@ -431,6 +455,10 @@ try {
     const definitions = [...document.querySelectorAll('#fingerprint-stats .stat__definitions')];
     const invalidOutput = /cannot be made|unavailable|NaN|undefined|Infinity/i;
     const firstDefinition = definitions[0];
+    const timelineEntries = [...document.querySelectorAll('.timeline-entry')];
+    const timelineRoles = timelineEntries.map(entry => entry.querySelector('.timeline-entry__role')?.textContent.trim());
+    const timelineYears = timelineEntries.map(entry => entry.querySelector('.timeline-entry__year')?.textContent.trim());
+    const timelineTitles = timelineEntries.map(entry => entry.querySelector('h3')?.textContent.trim());
     firstDefinition?.querySelector('summary')?.click();
     return {
       nativeMinimum: document.querySelector('#birth-date').min === '1900-01-01',
@@ -446,6 +474,12 @@ try {
       noInvalidNarrativeOutput: !allStats.some(stat => invalidOutput.test(stat.querySelector('.stat__value')?.textContent || '')),
       completeReport: document.querySelectorAll('.report-item').length >= 10
         && !invalidOutput.test(document.querySelector('#report-sheet').textContent),
+      timelineHasBirthAndPresent: timelineRoles.includes('Your birth year') && timelineRoles.includes('Present year'),
+      timelineHasEveryDecade: timelineRoles.filter(role => /^\\d{4}s$/.test(role)).length === 13,
+      timelineHasFifteenDistinctStories: timelineEntries.length === 15
+        && new Set(timelineYears).size === 15
+        && new Set(timelineTitles).size === 15,
+      timelineCatalogueNote: /every year from 1900 through 2026/i.test(document.querySelector('#timeline-note').textContent),
       definitionControlCount: definitions.length,
       definitionExpanded: Boolean(firstDefinition?.open),
       definitionTextPresent: Boolean(firstDefinition?.querySelector('dd')?.textContent.trim())
@@ -479,7 +513,11 @@ try {
   if (!modalAudit.closedWithEscape || !modalAudit.focusedInside || !audit.estimateLabUpdated || exceptions.length || consoleProblems.length) process.exitCode = 1;
   if (liveAudit.badgeCount !== 5 || !liveAudit.allAdvanced) process.exitCode = 1;
   if (Object.values(pauseAudit).some((value) => !value)) process.exitCode = 1;
-  if (controlAudit.estimateControlCount !== 9 || !controlAudit.allEstimateOutputsRendered || !controlAudit.resetToDefaults || !controlAudit.statusUpdated || controlAudit.timelineDemoCount !== 8 || !controlAudit.timelineOpened || !controlAudit.timelineClosed || controlAudit.customTimelineVisuals < 7) process.exitCode = 1;
+  if (controlAudit.estimateControlCount !== 9 || !controlAudit.allEstimateOutputsRendered || !controlAudit.resetToDefaults || !controlAudit.statusUpdated
+    || controlAudit.timelineDemoCount < 3 || !controlAudit.timelineDemoStagesPopulated
+    || !controlAudit.timelineOpened || !controlAudit.timelineClosed || controlAudit.timelineEntryCount !== 4
+    || !controlAudit.timelineBirthPresentIncluded || controlAudit.timelineDecadeCount !== 2
+    || !controlAudit.timelineYearsUnique || !controlAudit.timelineTitlesUnique) process.exitCode = 1;
   if (accessibilityAudit.mathButtonsMissingSpecificName || accessibilityAudit.timelineButtonsMissingSpecificName || !accessibilityAudit.probabilityStatusPresent || !accessibilityAudit.estimateStatusPresent || !accessibilityAudit.birthTimeAbsent || !accessibilityAudit.pickerLabelled) process.exitCode = 1;
   if (!downloadAudit.buttonVisible || !downloadAudit.filename.endsWith('.html') || !downloadAudit.blobUrlCreated || !downloadAudit.selfContainedDocument) process.exitCode = 1;
   if (!printMetrics.reportVisible || printMetrics.otherVisibleSections || printMetrics.visibleInteractiveControls || printMetrics.approximatePageObjects > 2) process.exitCode = 1;
@@ -497,8 +535,8 @@ try {
   }
   await new Promise((resolve) => setTimeout(resolve, 500));
   socket?.close();
-  if (chrome && chrome.exitCode == null) chrome.kill();
-  vite?.kill();
+  await stopChildProcess(chrome);
+  await stopChildProcess(vite);
   await new Promise((resolve) => setTimeout(resolve, 500));
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {

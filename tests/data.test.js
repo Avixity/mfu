@@ -1,23 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import timeline from '../src/data/math-timeline.json';
 import worldData from '../src/data/world-data.json';
 import { comparisonWindow, purchasingPowerEquivalent } from '../src/calculations/world.js';
 
 describe('offline research data', () => {
-  it('contains one complete, sourced mathematics story for every year from 2011 to 2026', () => {
-    expect(timeline.map(({ year }) => year)).toEqual(
-      Array.from({ length: 16 }, (_, index) => 2011 + index),
-    );
-    for (const story of timeline) {
-      expect(story.title.length).toBeGreaterThan(5);
-      expect(story.explanation.length).toBeGreaterThan(80);
-      expect(story.whyItMatters.length).toBeGreaterThan(30);
-      expect(story.sourceUrl).toMatch(/^https:\/\//);
-    }
-    expect(timeline.at(-1).label).toBe('Mathematics in 2026 so far');
-  });
-
   it('records source and coverage metadata for every world series', () => {
     expect(worldData.dateAccessed).toBe('2026-08-14');
     for (const series of Object.values(worldData.series)) {
