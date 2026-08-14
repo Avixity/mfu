@@ -1400,6 +1400,12 @@ function pointYearLabel(point) {
   return point.periodLabel || point.yearLabel || String(point.year);
 }
 
+function seriesReleaseNote(series, latestPoint) {
+  const updated = series.source?.apiLastUpdated;
+  if (!updated) return '';
+  return `The official API was updated ${displayDate(parseLocalDate(updated))}; ${pointYearLabel(latestPoint)} is the latest published observation in that 2026 release.`;
+}
+
 function historicalSeriesFor(series) {
   const historicalKeyById = {
     indiaPopulation: 'indiaPopulationHistorical',
@@ -1514,10 +1520,12 @@ function buildWorldStats() {
     const window = lifetimeDataWindow(series, { exactOnly });
     const start = window.start;
     const latest = window.latest;
+    const releaseNote = seriesReleaseNote(series, latest);
     const uncertaintyNotes = uncertainty || [
       ...(window.crossSeries ? window.startSeries?.notes || [] : []),
       ...(series.notes || []),
     ];
+    const sources = sourcesForWindow(window, series);
 
     if (window.mode === 'latest-benchmark' || Number(start.year) === Number(latest.year)) {
       const lagNote = window.mode === 'latest-benchmark'
@@ -1530,7 +1538,7 @@ function buildWorldStats() {
         formatter: endpointFormatter,
         after: `${endpointUnit ? ` ${endpointUnit}` : ''} in ${pointYearLabel(latest)}.`,
         classification: 'Data-based',
-        note: `${lagNote}${noteExtra ? ` ${noteExtra}` : ''}`,
+        note: `${lagNote}${releaseNote ? ` ${releaseNote}` : ''}${noteExtra ? ` ${noteExtra}` : ''}`,
         fullValue: `${pointYearLabel(latest)}: ${formatNumber(latest.value, { maximumFractionDigits: 6 })} ${series.unit}`,
         math: detail({
           title: `${subject} latest published benchmark`, classification: 'Data-based',
@@ -1539,14 +1547,14 @@ function buildWorldStats() {
             : 'latest benchmark = stored value for the latest published year',
           substitution: window.mode === 'latest-benchmark'
             ? `${state.birth.year} − ${latest.year}`
-            : `${series.id}[${latest.year}]`,
+            : `${series.id}[${pointYearLabel(latest)}]`,
           result: window.mode === 'latest-benchmark'
             ? `${window.dataLagYears} ${plural(window.dataLagYears, 'year')} of data lag; latest value ${endpointFormatter(latest.value)} ${endpointUnit}`
-            : `${endpointFormatter(latest.value)} ${endpointUnit} in ${latest.year}`,
-          variables: { symbol: 'latest value', definition: `latest verified observation stored offline (${latest.year})`, value: latest.value },
-          assumptions: [lagNote, `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}.`],
+            : `${endpointFormatter(latest.value)} ${endpointUnit} in ${pointYearLabel(latest)}`,
+          variables: { symbol: 'latest value', definition: `latest verified observation stored offline (${pointYearLabel(latest)})`, value: latest.value },
+          assumptions: [lagNote, releaseNote, `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}.`].filter(Boolean),
           uncertainty: uncertaintyNotes,
-          source: sourcesForWindow(window, series),
+          source: sources,
         }),
       });
       return true;
@@ -1557,7 +1565,7 @@ function buildWorldStats() {
     stats.push({
       id, before: `${subject} ${direction}`, numeric: Math.abs(change), formatter: valueFormatter,
       after: `${unitPhrase} ${comparisonPeriod(window)}.`, classification: 'Data-based',
-      note: `From ${endpointFormatter(start.value)} ${endpointUnit} to ${endpointFormatter(latest.value)} ${endpointUnit}. ${comparisonWindowNote(window)}${window.crossSeries ? ' The endpoints use separately identified historical and modern methods.' : ''} Latest stored year: ${latest.year}.${noteExtra ? ` ${noteExtra}` : ''}`,
+      note: `From ${endpointFormatter(start.value)} ${endpointUnit} to ${endpointFormatter(latest.value)} ${endpointUnit}. ${comparisonWindowNote(window)}${window.crossSeries ? ' The endpoints use separately identified historical and modern methods.' : ''} Latest stored period: ${pointYearLabel(latest)}.${releaseNote ? ` ${releaseNote}` : ''}${noteExtra ? ` ${noteExtra}` : ''}`,
       fullValue: `${pointYearLabel(start)}: ${formatNumber(start.value, { maximumFractionDigits: 6 })}; ${pointYearLabel(latest)}: ${formatNumber(latest.value, { maximumFractionDigits: 6 })} ${series.unit}`,
       math: detail({
         title: `${subject} ${differenceLabel}`, classification: 'Data-based',
@@ -1566,11 +1574,11 @@ function buildWorldStats() {
         result: `${change >= 0 ? '+' : '−'}${valueFormatter(Math.abs(change))} ${resultUnit}`,
         variables: [
           { symbol: 'starting value', definition: window.mode === 'birth-year' ? `${start.interpolated ? 'interpolated' : 'published'} birth-year value (${pointYearLabel(start)})` : `first comparable in-lifetime record (${pointYearLabel(start)})`, value: start.value },
-          { symbol: 'latest value', definition: `latest observation stored offline (${latest.year})`, value: latest.value },
+          { symbol: 'latest value', definition: `latest observation stored offline (${pointYearLabel(latest)})`, value: latest.value },
         ],
-        assumptions: [comparisonWindowNote(window), window.crossSeries ? 'The historical and modern endpoints use different documented collection or estimation methods; the subtraction is an approximate long-run comparison.' : '', `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}; later source revisions are not fetched while offline.`].filter(Boolean),
+        assumptions: [comparisonWindowNote(window), window.crossSeries ? 'The historical and modern endpoints use different documented collection or estimation methods; the subtraction is an approximate long-run comparison.' : '', releaseNote, `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}; later source revisions are not fetched while offline.`].filter(Boolean),
         uncertainty: uncertaintyNotes,
-        source: sourcesForWindow(window, series),
+        source: sources,
       }),
     });
     return true;
@@ -1592,25 +1600,62 @@ function buildWorldStats() {
     id: 'world-electricity', series: s.indiaElectricityAccess, subject: 'Access to electricity in India',
     valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }), unitPhrase: ' percentage points ', resultUnit: 'percentage points', endpointFormatter: (value) => formatPercent(value, 1), endpointUnit: '', precision: 2,
   });
+  const latestCompleteCo2 = [...s.atmosphericCo2MaunaLoa.values]
+    .reverse()
+    .find((point) => !point.partialYear && Number.isFinite(point.uncertainty));
+  const latestCo2 = s.atmosphericCo2MaunaLoa.values.at(-1);
   addChange({
     id: 'world-co2', series: s.atmosphericCo2MaunaLoa, subject: 'Atmospheric CO₂ concentration',
     valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }), unitPhrase: ' parts per million ', endpointUnit: 'ppm', precision: 2,
-    noteExtra: `The latest direct annual mean reports ±${s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty} ppm; the separate 1900 Law Dome proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`,
+    noteExtra: latestCo2.partialYear
+      ? `${pointYearLabel(latestCo2)} is a partial-year checkpoint: ${latestCo2.substitution} = ${formatNumber(latestCo2.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ppm. It is not a complete annual mean. The latest complete annual mean (${latestCompleteCo2.year}) reports ±${latestCompleteCo2.uncertainty} ppm; the separate 1900 Law Dome proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`
+      : `The latest direct annual mean reports ±${latestCo2.uncertainty} ppm; the separate 1900 Law Dome proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`,
     uncertainty: [
-      `Modern direct annual means report ±${s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty} ppm; the 1900 ice-core proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`,
+      `${pointYearLabel(latestCo2)} is the arithmetic mean of ${latestCo2.monthsIncluded} published monthly means (${latestCo2.substitution}); it has no complete-year uncertainty value and is seasonally incomplete.`,
+      `The latest complete modern annual mean (${latestCompleteCo2.year}) reports ±${latestCompleteCo2.uncertainty} ppm; the 1900 ice-core proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`,
       'When a comparison crosses from the ice-core proxy to Mauna Loa monitoring, site and measurement-method differences matter in addition to the stated endpoint uncertainty.',
       ...s.atmosphericCo2Historical.notes,
       ...s.atmosphericCo2MaunaLoa.notes,
     ],
   });
 
+  const currentInflationCheckpoint = s.indiaConsumerPriceInflation.currentMonthlyCheckpoint;
+  const rbiInflationCheckpoint = s.indiaCpiCombinedFiscalRbi.latestInflationCheckpoint;
   addChange({
     id: 'world-inflation', series: s.indiaConsumerPriceInflation, subject: 'India’s annual consumer-price inflation rate',
     valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }),
     endpointFormatter: (value) => formatPercent(value, 2), endpointUnit: '',
     unitPhrase: ' percentage points ', resultUnit: 'percentage points', precision: 4,
     differenceLabel: 'rate change',
-    noteExtra: 'Annual inflation is a rate for one year; this compares endpoint rates and is not cumulative inflation.',
+    noteExtra: 'Annual inflation is a rate for one year; this compares endpoint rates and is not cumulative inflation. A separate current-month 2026 checkpoint follows and is not spliced into this annual series.',
+  });
+
+  stats.push({
+    id: 'world-inflation-current',
+    before: 'India’s latest verified 2026 CPI checkpoint was ',
+    numeric: currentInflationCheckpoint.value,
+    formatter: (value) => formatPercent(value, 2),
+    after: ` year-on-year inflation in ${currentInflationCheckpoint.periodLabel}.`,
+    classification: 'Data-based',
+    note: `The all-India combined CPI index was ${currentInflationCheckpoint.indexValue.toFixed(2)}, against ${currentInflationCheckpoint.comparisonIndexValue.toFixed(2)} one year earlier, on base ${currentInflationCheckpoint.baseYear}=100. MoSPI marks the result provisional. For broader context, RBI reports ${rbiInflationCheckpoint.value}% combined CPI average monthly inflation for fiscal year ${rbiInflationCheckpoint.periodLabel}; neither differently timed measure is used in the ₹100 calculation.`,
+    fullValue: `${formatPercent(currentInflationCheckpoint.value, 2)} provisional year-on-year combined CPI inflation; index ${currentInflationCheckpoint.indexValue.toFixed(2)}`,
+    math: detail({
+      title: `India CPI inflation checkpoint — ${currentInflationCheckpoint.periodLabel}`,
+      classification: 'Data-based',
+      formula: 'year-on-year inflation = (current-month CPI ÷ same-month previous-year CPI − 1) × 100',
+      substitution: `(${currentInflationCheckpoint.indexValue.toFixed(2)} ÷ ${currentInflationCheckpoint.comparisonIndexValue.toFixed(2)} − 1) × 100`,
+      result: `${formatPercent(currentInflationCheckpoint.value, 2)} provisional combined CPI inflation`,
+      variables: [
+        { symbol: 'current CPI', definition: `all-India combined CPI for ${currentInflationCheckpoint.periodLabel}`, value: `${currentInflationCheckpoint.indexValue.toFixed(2)} (base ${currentInflationCheckpoint.baseYear}=100)` },
+        { symbol: 'previous-year CPI', definition: 'all-India combined CPI for June 2025', value: currentInflationCheckpoint.comparisonIndexValue.toFixed(2) },
+      ],
+      assumptions: ['The rate compares the same month one year apart; it is not an annual-average rate.', 'The official result is calculated from unrounded indices, so the rounded substitution can differ minutely.', 'This 2024-base monthly index is not spliced into the World Bank annual series or the ₹100 ratio.'],
+      uncertainty: [currentInflationCheckpoint.note, rbiInflationCheckpoint.note],
+      source: [
+        { title: currentInflationCheckpoint.sourceTitle, url: currentInflationCheckpoint.sourceUrl },
+        { title: rbiInflationCheckpoint.sourceTitle, url: rbiInflationCheckpoint.sourceUrl },
+      ],
+    }),
   });
 
   const cpiWindow = lifetimeDataWindow(s.indiaConsumerPriceIndex);
@@ -1621,14 +1666,14 @@ function buildWorldStats() {
       id: 'world-purchasing-power', before: 'The latest broad Indian CPI benchmark is ',
       numeric: cpiLatest.value, formatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }),
       after: ` in ${cpiLatest.year}.`, classification: 'Data-based',
-      note: `${comparisonWindowNote(cpiWindow)} A ₹100 birth-year equivalence will become possible when that year’s CPI is published.`,
+      note: `${comparisonWindowNote(cpiWindow)} ${seriesReleaseNote(s.indiaConsumerPriceIndex, cpiLatest)} A ₹100 birth-year equivalence will become possible when that year’s CPI is published.`,
       math: detail({
         title: 'CPI data-lag calculation', classification: 'Data-based',
         formula: 'data lag = birth year − latest CPI year',
         substitution: `${state.birth.year} − ${cpiLatest.year}`,
         result: `${cpiWindow.dataLagYears} ${plural(cpiWindow.dataLagYears, 'year')} of data lag`,
         variables: { symbol: 'CPI', definition: 'broad consumer price index', value: `${cpiLatest.value} in ${cpiLatest.year}` },
-        assumptions: 'No future CPI and no backward extrapolation are invented.',
+        assumptions: ['No future CPI and no backward extrapolation are invented.', seriesReleaseNote(s.indiaConsumerPriceIndex, cpiLatest)],
         uncertainty: s.indiaConsumerPriceIndex.notes,
         source: sourceFromSeries(s.indiaConsumerPriceIndex),
       }),
@@ -1639,7 +1684,7 @@ function buildWorldStats() {
       id: 'world-purchasing-power', before: `₹100 in ${pointYearLabel(cpiStart)} is roughly equivalent to `,
       numeric: equivalent, formatter: (value) => `₹${formatNumber(value, { maximumFractionDigits: 0 })}`,
       after: ` in ${cpiLatest.year} by the broad CPI ratio.`, classification: 'Data-based',
-      note: `${comparisonWindowNote(cpiWindow)} This is an inflation adjustment for a national basket, not the price of a particular product.`,
+      note: `${comparisonWindowNote(cpiWindow)} ${seriesReleaseNote(s.indiaConsumerPriceIndex, cpiLatest)} This is an inflation adjustment for a national basket, not the price of a particular product.`,
       fullValue: `₹${formatNumber(equivalent, { maximumFractionDigits: 2 })}`,
       math: detail({
         title: 'Purchasing-power comparison for ₹100', classification: 'Data-based',
@@ -1647,7 +1692,7 @@ function buildWorldStats() {
         substitution: `₹100 × (${formatNumber(cpiLatest.value, { maximumFractionDigits: 6 })} ÷ ${formatNumber(cpiStart.value, { maximumFractionDigits: 6 })})`,
         result: `₹${formatNumber(equivalent, { maximumFractionDigits: 2 })} in ${cpiLatest.year}`,
         variables: { symbol: 'CPI', definition: 'consumer price index; only the ratio matters', value: `${pointYearLabel(cpiStart)}: ${cpiStart.value}, ${cpiLatest.year}: ${cpiLatest.value}` },
-        assumptions: ['A broad national CPI basket is used; individual spending differs.', comparisonWindowNote(cpiWindow)],
+        assumptions: ['A broad national CPI basket is used; individual spending differs.', comparisonWindowNote(cpiWindow), seriesReleaseNote(s.indiaConsumerPriceIndex, cpiLatest)],
         uncertainty: s.indiaConsumerPriceIndex.notes,
         source: sourceFromSeries(s.indiaConsumerPriceIndex),
       }),
@@ -1671,21 +1716,25 @@ function buildWorldStats() {
   const niftyWindow = lifetimeDataWindow(s.nifty50YearEnd, { exactOnly: true });
   const niftyStart = niftyWindow.start;
   const niftyLatest = niftyWindow.latest;
+  const niftyLatestLabel = pointYearLabel(niftyLatest);
+  const niftyCurrentNote = niftyLatest.partialYear
+    ? `${niftyLatestLabel} is a current-year daily close, not a year-end value; it can change before 2026 ends.`
+    : '';
   if (niftyWindow.mode === 'latest-benchmark' || Number(niftyStart.year) === Number(niftyLatest.year)) {
     stats.push({
-      id: 'world-nifty', before: 'The latest stored NIFTY 50 year-end price-index close is ',
+      id: 'world-nifty', before: 'The latest stored NIFTY 50 price-index close is ',
       numeric: niftyLatest.value, formatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }),
-      after: ` in ${niftyLatest.year}.`, classification: 'Data-based',
-      note: `${niftyWindow.mode === 'latest-benchmark' ? comparisonWindowNote(niftyWindow) : 'No later year-end endpoint exists yet.'} No pre-series or future index value is invented; this is a dated market benchmark, not a personalised investment return.`,
+      after: ` on ${niftyLatestLabel}.`, classification: 'Data-based',
+      note: `${niftyWindow.mode === 'latest-benchmark' ? comparisonWindowNote(niftyWindow) : 'No later stored endpoint exists yet.'} ${niftyCurrentNote} No pre-series or future index value is invented; this is a dated market benchmark, not a personalised investment return.`,
       math: detail({
         title: 'Latest NIFTY 50 endpoint', classification: 'Data-based',
-        formula: niftyWindow.mode === 'latest-benchmark' ? 'data lag = birth year − latest index year' : 'latest endpoint = stored year-end close',
-        substitution: niftyWindow.mode === 'latest-benchmark' ? `${state.birth.year} − ${niftyLatest.year}` : `NIFTY[${niftyLatest.year}]`,
-        result: `${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} in ${niftyLatest.year}`,
+        formula: niftyWindow.mode === 'latest-benchmark' ? 'data lag = birth year − latest index year' : 'latest endpoint = stored dated close',
+        substitution: niftyWindow.mode === 'latest-benchmark' ? `${state.birth.year} − ${niftyLatest.year}` : `NIFTY[${niftyLatestLabel}]`,
+        result: `${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} on ${niftyLatestLabel}`,
         variables: 'This is a price index, not a total-return index.',
-        assumptions: 'No pre-inception value, future value or investment return is invented.',
+        assumptions: ['No pre-inception value, future value or investment return is invented.', niftyCurrentNote].filter(Boolean),
         uncertainty: s.nifty50YearEnd.notes,
-        source: { title: `NSE source for the ${niftyLatest.year} endpoint`, url: niftyLatest.sourceUrl || s.nifty50YearEnd.source.url },
+        source: sourceFromPoint(niftyLatest, s.nifty50YearEnd),
       }),
     });
   } else {
@@ -1693,22 +1742,22 @@ function buildWorldStats() {
     const direction = growth > 0 ? 'rose by ' : 'fell by ';
     stats.push({
       id: 'world-nifty',
-      before: growth === 0 ? 'The NIFTY 50 year-end price index was ' : `The NIFTY 50 year-end price index ${direction}`,
+      before: growth === 0 ? 'The NIFTY 50 price index was ' : `The NIFTY 50 price index ${direction}`,
       ...(growth === 0 ? { value: 'unchanged' } : { numeric: Math.abs(growth), formatter: (value) => formatPercent(value, 1) }),
       after: ` ${comparisonPeriod(niftyWindow)}.`, classification: 'Data-based',
-      note: `From ${formatNumber(niftyStart.value, { maximumFractionDigits: 2 })} on ${niftyStart.date || 'the first stored endpoint'} to ${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} on ${niftyLatest.date || 'the latest stored endpoint'}. ${comparisonWindowNote(niftyWindow)} No pre-series index value is invented; this is not a personalised investment return and excludes dividends.`,
+      note: `From ${formatNumber(niftyStart.value, { maximumFractionDigits: 2 })} on ${pointYearLabel(niftyStart)} to ${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} on ${niftyLatestLabel}. ${comparisonWindowNote(niftyWindow)} ${niftyCurrentNote} No pre-series index value is invented; this is not a personalised investment return and excludes dividends.`,
       fullValue: `${formatNumber(growth, { maximumFractionDigits: 4 })}% price-index change`,
       math: detail({
-        title: 'NIFTY 50 year-end price-index growth', classification: 'Data-based',
-        formula: 'growth = (latest year-end close ÷ first comparable stored close − 1) × 100',
+        title: 'NIFTY 50 dated price-index growth', classification: 'Data-based',
+        formula: 'growth = (latest dated close ÷ first comparable stored close − 1) × 100',
         substitution: `(${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} ÷ ${formatNumber(niftyStart.value, { maximumFractionDigits: 2 })} − 1) × 100`,
         result: formatPercent(growth, 3),
-        variables: ['The starting and latest values are official dated index observations stored offline.', 'The 2011 value is the 30 December final-trading-day close.', 'This is a price index, not a total-return index.'],
-        assumptions: [comparisonWindowNote(niftyWindow), 'Endpoint comparison only; dividends, fees, taxes and intra-year changes are excluded.'],
+        variables: ['The starting and latest values are official dated index observations stored offline.', 'The 2011 value is the 30 December final-trading-day close.', 'The 2026 value is the 14 August current-year close.', 'This is a price index, not a total-return index.'],
+        assumptions: [comparisonWindowNote(niftyWindow), niftyCurrentNote, 'Endpoint comparison only; dividends, fees, taxes and intra-year changes are excluded.'].filter(Boolean),
         uncertainty: s.nifty50YearEnd.notes,
         source: [
           { title: `NSE source for the ${niftyStart.year} endpoint`, url: niftyStart.sourceUrl || s.nifty50YearEnd.source.url },
-          { title: `NSE source for the ${niftyLatest.year} endpoint`, url: niftyLatest.sourceUrl || s.nifty50YearEnd.source.url },
+          sourceFromPoint(niftyLatest, s.nifty50YearEnd),
         ],
       }),
     });
@@ -1769,7 +1818,10 @@ function renderWorldChart() {
 
   const header = createElement('div', 'world-chart__header');
   const heading = createElement('h3', '', 'India’s population in the stored data');
-  const meta = createElement('p', '', `${yearMin}–${yearMax} · ${chartUsesHistorical ? 'census anchors followed by annual estimates' : 'latest published year shown'}`);
+  const populationRelease = series.source?.apiLastUpdated
+    ? ` · official API updated ${displayDate(parseLocalDate(series.source.apiLastUpdated))}`
+    : '';
+  const meta = createElement('p', '', `${yearMin}–${yearMax} · ${chartUsesHistorical ? 'census anchors followed by annual estimates' : 'latest published year shown'}${populationRelease}`);
   header.append(heading, createElement('span', 'classification', 'Data-based'), meta);
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1874,7 +1926,7 @@ function buildSpaceStats(space) {
         variables: { symbol: 'galactic speed', definition: 'rounded estimate of the Sun’s orbital speed around the Milky Way', value: `${c.solarSystemGalacticSpeedKilometresPerSecond} km/s` },
         conversions: '1 completed day = 86,400 seconds',
         assumptions: 'The Solar System’s curved galactic path is treated as speed × time, and the speed is approximate.',
-        uncertainty: 'The adopted 220 km/s is deliberately rounded. NASA’s current public overview gives about 829,000 km/h (roughly 230 km/s), so this teaching model is about 4.5% lower; reference frames and models also differ.', source: galaxySource,
+        uncertainty: 'The adopted 230 km/s is rounded from NASA’s current public overview of about 829,000 km/h (about 230.3 km/s); reference frames and galactic-motion models also differ.', source: galaxySource,
       }),
     },
     {
@@ -2146,7 +2198,7 @@ function renderReport() {
   addReportItem(grid, 'Projected', `Share of a ${state.expectedLifespan}-year model`, formatPercent(projectedShare, 1), `age years ÷ ${state.expectedLifespan} × 100`, 'sliders');
 
   const maths = createElement('p', 'report-sheet__maths');
-  maths.textContent = 'Mathematics used: calendar arithmetic, rates and ratios, percentages, unit conversion, averages, prime factorisation, probability, scientific notation, interpolation, geometry, functions and uncertainty. Exact results follow from the entered calendar date; estimates depend on visible assumptions; data comparisons stop at each source’s latest published year.';
+  maths.textContent = 'Mathematics used: calendar arithmetic, rates and ratios, percentages, unit conversion, averages, prime factorisation, probability, scientific notation, interpolation, geometry, functions and uncertainty. Exact results follow from the entered calendar date; estimates depend on visible assumptions; data comparisons stop at each source’s latest published period.';
   const sources = createElement('p', 'report-sheet__sources');
   sources.append(document.createTextNode('Compact sources: '));
   [

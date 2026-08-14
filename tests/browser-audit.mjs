@@ -446,7 +446,7 @@ try {
   const coverage1900Audit = await evaluate(cdp, `(() => {
     const expectedWorldIds = [
       'world-india-population', 'world-population', 'world-internet',
-      'world-electricity', 'world-co2', 'world-inflation',
+      'world-electricity', 'world-co2', 'world-inflation', 'world-inflation-current',
       'world-purchasing-power', 'world-life-expectancy',
       'world-literacy', 'world-nifty'
     ];
@@ -486,6 +486,25 @@ try {
     };
   })()`);
 
+  const currentDataAudit = await evaluate(cdp, `(() => {
+    const text = id => document.querySelector('[data-stat-id="' + id + '"]')?.textContent || '';
+    const co2 = text('world-co2');
+    const nifty = text('world-nifty');
+    const inflation = text('world-inflation');
+    const currentInflation = text('world-inflation-current');
+    const population = text('world-india-population');
+    return {
+      co2Uses2026PartialPeriod: co2.includes('January–July 2026') && co2.includes('partial-year'),
+      co2DoesNotClaimComplete2026: !co2.includes('2026 annual mean reports') && !co2.includes('complete 2026 annual mean'),
+      niftyUsesDated2026Close: nifty.includes('14 August 2026') && nifty.includes('current-year') && nifty.includes('not a year-end'),
+      annualInflationKeepsActualYear: inflation.includes('2025') && inflation.includes('separate current-month 2026 checkpoint'),
+      currentInflationUsesOfficial2026Release: currentInflation.includes('June 2026') && currentInflation.includes('4.38%') && currentInflation.includes('provisional'),
+      inflationIncludesRbi2026Context: currentInflation.includes('2025–26') && currentInflation.includes('2.1%'),
+      worldBankReleaseIsDatedHonestly: population.includes('official API was updated 13 July 2026') && population.includes('2025'),
+      sectionStates2026Policy: document.querySelector('#world .section-heading')?.textContent.includes('Verified 2026 checkpoints')
+    };
+  })()`);
+
   const audit = {
     viewports: results,
     calendarControl: calendarControlAudit,
@@ -503,6 +522,7 @@ try {
     selectedDate: selectedDateAudit,
     beforeMinimumDate: beforeMinimumAudit,
     coverage1900: coverage1900Audit,
+    currentData2026: currentDataAudit,
     runtimeExceptions: exceptions,
     consoleProblems,
   };
@@ -527,6 +547,7 @@ try {
   if (Object.values(beforeMinimumAudit).some((value) => !value)) process.exitCode = 1;
   if (coverage1900Audit.definitionControlCount < 10
     || Object.entries(coverage1900Audit).some(([key, value]) => key !== 'definitionControlCount' && !value)) process.exitCode = 1;
+  if (Object.values(currentDataAudit).some((value) => !value)) process.exitCode = 1;
 } finally {
   try {
     await cdp?.send('Browser.close');

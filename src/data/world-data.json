@@ -6,7 +6,7 @@
   "recordSchema": "Each observation inherits its unit, source, access date and notes from the containing series unless the observation supplies a more specific source URL or note.",
   "historicalRecordSchema": "Historical records retain a numeric value for existing calculation utilities and may add lowerBound/upperBound for a published estimate range, uncertainty for a reported measurement uncertainty, periodStart/periodEnd for a period statistic, and observationType or valueSource so the method remains explicit.",
   "methodology": {
-    "latestYearRule": "Use the last non-null published observation in each series. Never label that value as today when its data year is earlier.",
+    "latestYearRule": "Use the last non-null published observation in each series. A documented current-year partial observation may be used only with its exact period label; never relabel an earlier year or a partial period as today or as a completed annual value.",
     "birthYearRule": "Use an official observation for the visitor's birth year when one exists. Do not silently substitute the closest year.",
     "historicalSeriesRule": "Historical census anchors, proxy reconstructions and period estimates are stored as separate named series. Do not silently merge them with modern harmonized series or imply that their methods are identical.",
     "historicalFallbackRule": "When a birth year predates a comparable series, show the first relevant observation or benchmark with its real year and method. Never extrapolate backward or relabel a later observation as the birth-year value.",
@@ -14,7 +14,7 @@
     "interpolationFormula": "estimated value = y0 + ((date - date0) / (date1 - date0)) * (y1 - y0)",
     "interpolationRule": "Interpolate only between adjacent observations when the series explicitly allows it, label the result as interpolated, and name both surrounding years. No extrapolation is allowed.",
     "purchasingPowerFormula": "equivalent rupees in latest data year = rupees in selected starting year * (latest CPI / selected starting CPI)",
-    "marketGrowthFormula": "price-index growth (%) = ((latest year-end close / first comparable stored close) - 1) * 100"
+    "marketGrowthFormula": "price-index growth (%) = ((latest dated close / first comparable stored close) - 1) * 100"
   },
   "series": {
     "indiaPopulation": {
@@ -412,22 +412,23 @@
     },
     "atmosphericCo2MaunaLoa": {
       "id": "atmosphericCo2MaunaLoa",
-      "label": "Atmospheric carbon dioxide — Mauna Loa annual mean",
+      "label": "Atmospheric carbon dioxide — Mauna Loa published means",
       "indicatorCode": "NOAA_GML_CO2_ANNMEAN_MLO",
       "geography": "Mauna Loa Observatory, Hawaii (with the documented 2022–2023 site interruption)",
       "unit": "ppm dry-air mole fraction",
-      "frequency": "annual mean",
-      "coverage": { "from": 1959, "to": 2025 },
-      "latestYear": 2025,
+      "frequency": "complete annual means through 2025; January–July partial-year mean for 2026",
+      "coverage": { "from": 1959, "to": 2026 },
+      "latestYear": 2026,
       "displayPrecision": 2,
       "interpolation": {
         "allowed": false,
-        "reason": "The website compares published annual means; a birth-date concentration would require the separate monthly series and seasonal adjustment."
+        "reason": "The website compares published complete-year means and the explicitly labelled 2026 partial-year mean; a birth-date concentration would require a separate daily series and seasonal adjustment."
       },
       "source": {
         "title": "NOAA Global Monitoring Laboratory — Mauna Loa CO₂ annual mean data",
         "url": "https://gml.noaa.gov/ccgg/trends/data.html",
         "dataUrl": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.csv",
+        "monthlyDataUrl": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv",
         "provider": "NOAA Global Monitoring Laboratory; Xin Lan and Ralph Keeling",
         "fileCreated": "2026-08-05",
         "dateAccessed": "2026-08-14"
@@ -435,6 +436,7 @@
       "notes": [
         "CO₂ is expressed as micromoles per mole of dry air, abbreviated ppm.",
         "NOAA says the uncertainty column is estimated from independently determined NOAA and Scripps annual means; values may receive small quality-control revisions.",
+        "The January–July 2026 value is this project's arithmetic mean of seven published NOAA monthly means. It is a current-year checkpoint, not NOAA's complete 2026 annual mean, and seasonal variation limits direct comparison with complete-year means.",
         "Mauna Loa observations were suspended after 29 November 2022 and resumed in July 2023; observations from December 2022 to 4 July 2023 came from Maunakea Observatories, as documented in the source file."
       ],
       "values": [
@@ -504,7 +506,19 @@
         { "year": 2022, "value": 418.53, "uncertainty": 0.12 },
         { "year": 2023, "value": 421.08, "uncertainty": 0.12 },
         { "year": 2024, "value": 424.61, "uncertainty": 0.12 },
-        { "year": 2025, "value": 427.35, "uncertainty": 0.12 }
+        { "year": 2025, "value": 427.35, "uncertainty": 0.12 },
+        {
+          "year": 2026,
+          "periodLabel": "January–July 2026",
+          "value": 430.31,
+          "partialYear": true,
+          "monthsIncluded": 7,
+          "observationType": "partial-year arithmetic mean of seven published NOAA monthly means",
+          "sourceTitle": "NOAA Global Monitoring Laboratory — Mauna Loa CO₂ monthly mean data",
+          "sourceUrl": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv",
+          "substitution": "(428.62 + 429.35 + 430.15 + 431.12 + 432.34 + 431.44 + 429.12) / 7",
+          "note": "Calculated from NOAA's January through July 2026 monthly means; not a complete annual mean or forecast."
+        }
       ]
     },
     "atmosphericCo2Historical": {
@@ -654,6 +668,20 @@
       "coverage": { "from": 1960, "to": 2025 },
       "latestYear": 2025,
       "displayPrecision": 1,
+      "currentMonthlyCheckpoint": {
+        "periodLabel": "June 2026",
+        "value": 4.38,
+        "unit": "% year-on-year combined CPI inflation",
+        "indexValue": 107.00,
+        "comparisonIndexValue": 102.51,
+        "baseYear": 2024,
+        "provisional": true,
+        "observationType": "provisional monthly year-on-year inflation checkpoint",
+        "sourceTitle": "Government of India, MoSPI — Consumer Price Index for June 2026",
+        "sourceUrl": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2284125&lang=1&reg=1",
+        "publicationDate": "2026-07-13",
+        "note": "The June 2026 combined CPI index was 107.00 versus 102.51 in June 2025, on base 2024=100. MoSPI's official 4.38% rate uses unrounded indices and is provisional. This monthly result is not spliced into the World Bank calendar-year inflation series or used for the ₹100 ratio."
+      },
       "interpolation": {
         "allowed": false,
         "reason": "Inflation is itself a change over a defined annual interval; interpolation between annual rates would not preserve the underlying price-index path."
@@ -931,21 +959,32 @@
       "latestYear": "2023-24",
       "displayPrecision": 1,
       "preferredForPurchasingPowerComparison": false,
+      "latestInflationCheckpoint": {
+        "periodLabel": "2025–26",
+        "value": 2.1,
+        "unit": "% average monthly combined CPI inflation",
+        "observationType": "published fiscal-year inflation checkpoint",
+        "sourceTitle": "Reserve Bank of India Annual Report 2025–26 — Inflation, Money and Credit appendix",
+        "sourceUrl": "https://www.rbi.org.in/scripts/AnnualReportPublications.aspx?Id=1477",
+        "publicationDate": "2026-05-29",
+        "note": "RBI reports 2.1% combined CPI average monthly inflation for 2025–26. April–December 2025 use base 2012=100 and January–March 2026 use the revised base 2024=100, so this checkpoint is not spliced into the calendar-year World Bank CPI series or used for the ₹100 ratio."
+      },
       "interpolation": {
         "allowed": false,
         "reason": "The observations are fiscal-year averages; do not interpolate or combine them with the calendar-year World Bank/IMF CPI series."
       },
       "source": {
-        "title": "Reserve Bank of India, Handbook of Statistics on Indian Economy — Table 37: Consumer Price Index, Annual Average",
-        "url": "https://www.rbi.org.in/Scripts/PublicationsView.aspx?id=22511",
+        "title": "Reserve Bank of India, Handbook of Statistics on Indian Economy 2025–26 — Table 34: Consumer Price Index, Annual Average",
+        "url": "https://rbidocs.rbi.org.in/rdocs/Publications/PDFs/34T_HBIE3107202600704861E33A4A10A0C9B807828AABEA.PDF",
         "underlyingProvider": "National Statistical Office, Ministry of Statistics and Programme Implementation, Government of India",
-        "publicationDate": "2024-09-13",
+        "publicationDate": "2026-07-31",
         "dateAccessed": "2026-08-14"
       },
       "notes": [
         "CPI Combined covers rural plus urban India and was introduced from January 2011; the series uses base 2012 = 100.",
         "This official Indian fiscal-year series is retained for source transparency and cross-checking. The website's birth-calendar-year ₹100 comparison uses the separate calendar-year CPI series above.",
-        "The cited RBI table's latest complete fiscal-year observation is 2023-24."
+        "The stored 2012-base index-level observations stop at 2023-24; no later index level is guessed from the refreshed 2026 handbook landing page.",
+        "A separate official 2025-26 combined inflation checkpoint is stored for current context, but its base transition makes it unsuitable for the ₹100 index-ratio calculation."
       ],
       "values": [
         { "year": "2011-12", "value": 93.3 },
@@ -965,19 +1004,19 @@
     },
     "nifty50YearEnd": {
       "id": "nifty50YearEnd",
-      "label": "NIFTY 50 price index — year-end close",
-      "indicatorCode": "NSE_NIFTY50_YEAR_END_CLOSE",
+      "label": "NIFTY 50 price index — dated official closes",
+      "indicatorCode": "NSE_NIFTY50_DATED_CLOSES",
       "geography": "India",
       "unit": "index points",
-      "frequency": "last available official December close for each calendar year",
-      "coverage": { "from": 2011, "to": 2025 },
-      "latestYear": 2025,
+      "frequency": "last available official December close for 2011–2025, plus the 14 August 2026 current-year close",
+      "coverage": { "from": 2011, "to": 2026 },
+      "latestYear": 2026,
       "displayPrecision": 2,
       "derivedCalculation": {
         "name": "NIFTY 50 price-index growth",
-        "formula": "growth (%) = ((latest year-end close / first comparable stored close) - 1) * 100",
+        "formula": "growth (%) = ((latest dated close / first comparable stored close) - 1) * 100",
         "classification": "Data-based",
-        "assumption": "This compares year-end price-index levels. It excludes dividends, fees, taxes and the exact timing of a visitor's birth, so it is not an investment-return calculation."
+        "assumption": "This compares dated price-index levels. The 2026 endpoint is a current-year close, not a year-end close. The calculation excludes dividends, fees, taxes and the exact timing of a visitor's birth, so it is not an investment-return calculation."
       },
       "interpolation": {
         "allowed": false,
@@ -993,6 +1032,7 @@
       "notes": [
         "NIFTY 50 was named S&P CNX Nifty in 2012, CNX Nifty in 2013–2014, and Nifty 50 in later archive files; these observations refer to the same benchmark lineage.",
         "The 2011 point is the 30 December final-trading-day close shown through NSE's official historical-index data service; the later static daily archive pattern was not available for that date.",
+        "The 2026 point is the official NIFTY 50 close on 14 August 2026. It is a current-year checkpoint, not a year-end value, and can change substantially before year-end.",
         "Do not describe this price-index change as money earned: it excludes dividends and all investor-specific costs."
       ],
       "values": [
@@ -1010,7 +1050,18 @@
         { "year": 2022, "date": "2022-12-30", "value": 18105.30, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_30122022.csv" },
         { "year": 2023, "date": "2023-12-29", "value": 21731.40, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_29122023.csv" },
         { "year": 2024, "date": "2024-12-31", "value": 23644.80, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122024.csv" },
-        { "year": 2025, "date": "2025-12-31", "value": 26129.60, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122025.csv" }
+        { "year": 2025, "date": "2025-12-31", "value": 26129.60, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122025.csv" },
+        {
+          "year": 2026,
+          "date": "2026-08-14",
+          "periodLabel": "14 August 2026",
+          "value": 24366.00,
+          "partialYear": true,
+          "observationType": "official current-year daily close",
+          "sourceTitle": "National Stock Exchange of India — Indices closing prices, 14 August 2026",
+          "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_14082026.csv",
+          "note": "Official NIFTY 50 close on 14 August 2026; not a calendar-year-end value."
+        }
       ]
     }
   },
@@ -1018,9 +1069,9 @@
     "The modern World Bank-backed series begin in different years: 1960 for population, broad CPI and life expectancy; 1990 for internet use; 1993 for electricity access; and 1981 for the first sparse adult-literacy observation. A value from the first available year must never be relabelled as an earlier visitor's birth-year value.",
     "The four separately named historical series contain census anchors or isolated benchmarks, not seamless annual extensions of the modern series. Their different methods, periods, geography and uncertainty must remain visible.",
     "For a 1900 birth there is no comparable birth-year value for internet use, electricity access, broad Indian CPI, adult literacy aged 15+, or NIFTY 50. Those cards must state when their records begin rather than fabricate or extrapolate a number.",
-    "Different series end in different years. The interface must print each series' actual latest year.",
+    "Different series end in different years. The interface must print each series' actual latest period and distinguish current-year checkpoints from complete annual observations.",
     "World Bank values can be revised after this access date. The saved observations intentionally remain frozen so the exhibition continues to work offline and reproducibly.",
     "Adult-literacy observations are irregular and must not be interpolated.",
-    "The NIFTY series is a price-index comparison at annual endpoints, not a personalised investment return."
+    "The NIFTY series is a price-index comparison at dated endpoints, not a personalised investment return; its 2026 endpoint is a current-year close rather than a year-end close."
   ]
 }

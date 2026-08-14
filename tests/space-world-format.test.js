@@ -37,7 +37,8 @@ describe("space calculations", () => {
       10,
     );
     expect(result.galacticDistanceKilometres).toBeCloseTo(
-      SPACE_CONSTANTS.earthOrbitalPeriodDays * 86_400 * 220,
+      SPACE_CONSTANTS.earthOrbitalPeriodDays * 86_400
+        * SPACE_CONSTANTS.solarSystemGalacticSpeedKilometresPerSecond,
       5,
     );
   });

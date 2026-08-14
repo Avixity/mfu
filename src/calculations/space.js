@@ -1,7 +1,7 @@
 export const SPACE_CONSTANTS = Object.freeze({
   earthOrbitalSpeedKilometresPerHour: 107_218,
   earthOrbitalPeriodDays: 365.256_363_004,
-  solarSystemGalacticSpeedKilometresPerSecond: 220,
+  solarSystemGalacticSpeedKilometresPerSecond: 230,
   moonSiderealOrbitDays: 27.321_661,
   moonSynodicCycleDays: 29.530_59,
   moonRecessionCentimetresPerYear: 3.8,

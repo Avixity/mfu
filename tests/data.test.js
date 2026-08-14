@@ -28,6 +28,54 @@ describe('offline research data', () => {
     expect(purchasingPowerEquivalent(100, birth, latest)).toBeCloseTo(213.99, 2);
   });
 
+  it('stores genuine 2026 checkpoints without presenting partial periods as complete years', () => {
+    const worldBankSeries = [
+      'indiaPopulation',
+      'worldPopulation',
+      'indiaInternetUse',
+      'indiaElectricityAccess',
+      'indiaConsumerPriceIndex',
+      'indiaConsumerPriceInflation',
+      'indiaLifeExpectancy',
+      'indiaAdultLiteracy',
+    ];
+    for (const key of worldBankSeries) {
+      expect(worldData.series[key].source.apiLastUpdated).toBe('2026-07-13');
+      expect(Number(worldData.series[key].latestYear)).toBeLessThan(2026);
+    }
+
+    const co2 = worldData.series.atmosphericCo2MaunaLoa.values.at(-1);
+    expect(co2).toMatchObject({
+      year: 2026,
+      periodLabel: 'January–July 2026',
+      value: 430.31,
+      partialYear: true,
+      monthsIncluded: 7,
+    });
+    expect(co2).not.toHaveProperty('uncertainty');
+
+    const nifty = worldData.series.nifty50YearEnd.values.at(-1);
+    expect(nifty).toMatchObject({
+      year: 2026,
+      date: '2026-08-14',
+      value: 24_366,
+      partialYear: true,
+    });
+
+    const rbi = worldData.series.indiaCpiCombinedFiscalRbi.latestInflationCheckpoint;
+    expect(rbi).toMatchObject({ periodLabel: '2025–26', value: 2.1 });
+    expect(rbi.note).toMatch(/not spliced/i);
+
+    const monthlyInflation = worldData.series.indiaConsumerPriceInflation.currentMonthlyCheckpoint;
+    expect(monthlyInflation).toMatchObject({
+      periodLabel: 'June 2026',
+      value: 4.38,
+      indexValue: 107,
+      comparisonIndexValue: 102.51,
+      provisional: true,
+    });
+  });
+
   it('preserves the no-interpolation policy for irregular literacy observations', () => {
     expect(worldData.series.indiaAdultLiteracy.interpolation.allowed).toBe(false);
     expect(worldData.series.indiaAdultLiteracy.displayPolicy).toBeTruthy();
