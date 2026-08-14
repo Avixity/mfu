@@ -22,13 +22,13 @@ Results use the visitor's selected date and the device's current calendar date, 
 
 ## What is included
 
-- A normal `DD / MM / YYYY` typing field with flexible separator-free input, one calendar button, safe local-date validation, and leap-day handling.
+- A normal `DD / MM / YYYY` typing field for dates from **1 January 1900 through the device's current date**, with flexible separator-free input, one calendar button, safe local-date validation, and leap-day handling.
 - UTC-normalised whole-day arithmetic and a live Estimated clock for seconds, heartbeats, blood flow, breaths, and blinks.
 - Exact weekday, Monday, weekend-period, birthday, century, age-year, calendar-year-fraction, and meteorological-season calculations.
 - Twelve clearly labelled educational body estimates, including piecewise age-banded sleep.
-- A full completed-day number fingerprint: bases, Roman numerals, factorisation, divisor statistics, sequence tests, palindromic and prime milestones, digit arrangements, and a seconds-to-decades logarithmic view.
+- A full completed-day number fingerprint: bases, Roman numerals, factorisation, divisor statistics, sequence tests, palindromic and prime milestones, digit arrangements, and a seconds-to-decades logarithmic view. Plain-language **View definitions** controls explain terms such as prime, factor, palindrome, triangular number, Fibonacci number, digital root, permutation, and logarithm in place.
 - Two distinct interactive birthday probabilities for rooms of 2–100 people.
-- Frozen local JSON data for India, the world, atmospheric CO2, inflation, purchasing power, literacy, life expectancy, electricity, Internet use, and the NIFTY 50.
+- Frozen local JSON data for India, the world, atmospheric CO2, inflation, purchasing power, literacy, life expectancy, electricity, Internet use, and the NIFTY 50. Historical benchmarks and modern annual series are stored separately so a 1900 visitor receives useful calculations without a modern record being relabelled as a 1900 measurement.
 - A dependency-free SVG population chart.
 - Seven space calculations using documented mean rates and periods.
 - One sourced mathematical story for every year from 2011 through 2026, filtered to the visitor's lifetime.
@@ -122,7 +122,7 @@ The audit starts a temporary local Vite server, drives Chrome or Edge through th
 - horizontal overflow and empty statistic values;
 - story, timeline, maths-button, and report rendering;
 - bottom-sheet labelling, focus placement, and Escape-to-close behaviour;
-- native-calendar activation, live per-second advancement, pause/resume behaviour, and Estimate Lab rate propagation;
+- native-calendar activation, rejection before 1900, complete 1900-result coverage, expandable number-term definitions, live per-second advancement, pause/resume behaviour, and Estimate Lab rate propagation;
 - uncaught runtime exceptions.
 
 It saves viewport and section screenshots plus a JSON result in `.browser-audit/`. The script currently looks for Chrome or Edge in their standard Windows installation paths and uses local ports 4177 and 9337; see [Known limitations](#known-limitations) for portability details.
@@ -142,7 +142,7 @@ This is a lightweight Vite project using semantic HTML, CSS, and vanilla ES modu
 | `src/calculations/body.js` | Biological rate models, piecewise sleep, default assumptions, and illustrative sensitivity ranges. |
 | `src/calculations/live.js` | Shared date-based live clock and continuously advancing biological counters. |
 | `src/calculations/numbers.js` | Prime and divisor algorithms, sequence/property tests, number representations, palindromes, arrangements, and birthday probabilities. |
-| `src/calculations/world.js` | Interpolation, coverage guards, annual-series comparisons, CPI ratios, compounding, and chart coordinates. |
+| `src/calculations/world.js` | Interpolation, non-extrapolating comparison-window selection, annual-series comparisons, CPI ratios, compounding, and chart coordinates. |
 | `src/calculations/space.js` | Unit-safe speed, orbit, lunar-cycle, recession, and equatorial comparison calculations. |
 | `src/components/math-modal.js` | Reusable data-driven bottom sheet, focus trap, Escape handling, source links, and focus restoration. |
 | `src/components/timeline.js` | Lifetime filtering, timeline rendering, and lightweight “Understand it” demonstrations. |
@@ -241,20 +241,20 @@ These are educational models, not medical measurements, diagnoses, or personal h
 
 | Statistic | Classification | Formula | Data rule |
 | --- | --- | --- | --- |
-| India population change | Data-based | `latest population - birth-year population` | Stored World Bank mid-year estimates; no extrapolation. |
-| World population change | Data-based | `latest population - birth-year population` | Stored World Bank aggregate; no extrapolation. |
-| Internet-use change in India | Data-based | `latest percentage - birth-year percentage` | Reported in percentage points, not percent growth. |
-| Electricity-access change in India | Data-based | `latest percentage - birth-year percentage` | Latest stored year is shown explicitly. |
-| Atmospheric CO2 change | Data-based | `latest annual mean - birth-year annual mean` | NOAA Mauna Loa annual dry-air mole fraction, in ppm. |
-| Indian consumer-price inflation change | Data-based | `latest annual rate - birth-year annual rate` | Percentage-point comparison; not cumulative inflation. |
-| Purchasing-power comparison for INR 100 | Data-based | `100 x latest CPI / birth-year CPI` | Broad calendar-year national CPI basket; only the index ratio matters. |
-| Indian life-expectancy change | Data-based | `latest value - birth-year value` | Population period statistic, not the visitor's predicted lifespan. |
-| Adult-literacy change | Data-based | `latest measured rate - birth-year measured rate` | Rendered only when the birth year itself has a stored observation; never interpolated. |
-| NIFTY 50 year-end growth | Data-based | `(latest year-end close / birth-year year-end close - 1) x 100` | Price-index endpoint comparison; excludes dividends, fees, taxes, and intra-year movement. The 2011 observation is the 30 December final-trading-day close. |
+| India population change | Data-based | `latest population - selected starting population` | Uses the birth year when a comparable observation exists. For a 1900 visitor, the first official census during the lifetime is 1901; it is never called a 1900 count. |
+| World population change | Data-based | `latest population - selected starting population` | The isolated 1900 baseline is a historical demographic estimate with a published range; modern annual values are World Bank estimates. The source change is disclosed. |
+| Internet-use change in India | Data-based | `latest percentage - first comparable percentage in the lifetime window` | The series begins in 1990. Earlier visitors see a 1990-to-latest calculation labelled as a series-start comparison, reported in percentage points. |
+| Electricity-access change in India | Data-based | `latest percentage - first comparable percentage in the lifetime window` | The series begins in 1993 and the latest stored year is shown explicitly. |
+| Atmospheric CO2 change | Data-based | `latest annual mean - selected starting concentration` | A 1900 comparison starts with a Law Dome ice-core gas-age proxy; modern values are NOAA Mauna Loa annual means. The different sites and methods are disclosed. |
+| Indian consumer-price inflation change | Data-based | `latest annual rate - first comparable annual rate in the lifetime window` | The modern series begins in 1960. This is a percentage-point endpoint comparison, not cumulative inflation. |
+| Purchasing-power comparison for INR 100 | Data-based | `100 x latest CPI / selected starting CPI` | The broad calendar-year index begins in 1960; for earlier visitors the wording says that the price record starts during their lifetime. |
+| Indian life-expectancy change | Data-based | `latest value - selected starting benchmark` | The early benchmark is a 1901-1911 period estimate, not an exact 1900 observation or the visitor's predicted lifespan. |
+| Adult-literacy change | Data-based | `latest measured rate - first stored official rate on or after birth` | The adult 15+ series is sparse, begins in 1981, and is never interpolated. |
+| NIFTY 50 year-end growth | Data-based | `(latest stored close / first stored close on or after birth - 1) x 100` | Stored endpoints begin in 2011. The comparison excludes dividends, fees, taxes, and intra-year movement; it is not presented as the visitor's investment return. |
 | Population SVG coordinates | Data-based | linearly normalise year to x and value to y | The y-axis spans the displayed data range and does not start at zero. Connecting lines do not create new observations. |
-| Coverage and unavailable-comparison results | Data-based | comparison exists iff stored first year <= birth year <= stored latest year; unavailable count = number of series that fail their coverage/policy check | The UI names unavailable series and shows the count instead of inventing, extrapolating, or silently substituting values. |
+| Comparison-window selection | Data-based | use birth-year point if supported; otherwise use first verified point on or after birth; if the latest release predates birth, show that dated benchmark and its data lag | Every supported date renders a source-backed card, while the wording distinguishes a true birth-year point, an interpolated point, a later series start, and a latest-only benchmark. |
 
-The interpolation utility uses `y0 + ((x - x0) / (x1 - x0)) x (y1 - y0)` only between surrounding verified observations and only for series whose JSON policy explicitly permits it. It never extrapolates. The current population bundles contain annual observations for every stored integer year, while irregular literacy and market series explicitly disable interpolation.
+The interpolation utility uses `y0 + ((x - x0) / (x1 - x0)) x (y1 - y0)` only between surrounding verified observations and only for series whose JSON policy explicitly permits it. It never extrapolates. Historical census anchors, proxy samples, period estimates, modern annual series, irregular literacy observations, and market endpoints keep their own source and method labels.
 
 ### Your Journey Through Space
 
@@ -365,10 +365,15 @@ Resetting the Lab restores its visitor-specific defaults. Changed values update 
 ### World-data conventions
 
 - The offline snapshot is frozen at its recorded source values; it does not fetch updates at runtime.
-- Each comparison uses the visitor's birth year only when a supported observation or explicitly permitted between-year interpolation exists.
+- Every accepted birthday from 1900 onward produces every world-data narrative card. “Calculated” does not mean that every source measured every indicator in 1900: when a record begins later, the card calculates from the first verified observation in the visitor's lifetime and states that start year prominently.
+- Each comparison uses the visitor's birth year only when a supported observation or explicitly permitted between-year interpolation exists. Otherwise it is labelled as a **series-start** comparison, never as a birth-year value.
+- If a visitor is newer than an indicator's latest release, the card shows that dated latest benchmark and the number of lag years instead of claiming a zero change.
 - No series is extrapolated before its first or after its latest observation.
 - Each result names the actual latest stored year. Different indicators legitimately end in different years.
-- World Bank population values are mid-year estimates, not exact head counts.
+- Historical and modern series are kept separate in the JSON. When one visitor-facing comparison uses endpoints from different source families, the source change and resulting comparability limitation are shown in **Show the maths**.
+- World Bank population values are mid-year estimates, not exact head counts. The official Indian historical values are decennial census anchors, while the 1900 world baseline is a retrospective demographic estimate with a range rather than an observed global census count.
+- The 1900 CO2 point is a Law Dome ice-core proxy dated by gas age, not a direct instrument reading made in 1900. The modern endpoint comes from NOAA's Mauna Loa record.
+- The early Indian life-expectancy value describes the 1901-1911 period and carries substantial historical uncertainty; it is not silently converted into an exact 1900 value.
 - Internet use, electricity access, literacy, and life expectancy are published population indicators, not personal measurements.
 - Percentage changes in rate indicators are expressed as percentage points.
 - The INR 100 equivalence uses the World Bank calendar-year CPI ratio. The RBI CPI Combined fiscal-year series is retained for Indian-source context but is not mixed into that calculation.
@@ -391,19 +396,23 @@ Resetting the Lab restores its visitor-specific defaults. Changed values update 
 
 | Stored series | Coverage | Source |
 | --- | --- | --- |
-| India population | 2011–2025, annual | [World Bank: Population, total — India](https://data.worldbank.org/indicator/SP.POP.TOTL?locations=IN) |
-| World population | 2011–2025, annual | [World Bank: Population, total — World](https://data.worldbank.org/indicator/SP.POP.TOTL?locations=1W) |
-| Internet use in India | 2011–2025, annual | [World Bank: Individuals using the Internet](https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=IN) |
-| Electricity access in India | 2011–2024, annual | [World Bank: Access to electricity](https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS?locations=IN) |
-| Atmospheric CO2 annual mean | 2011–2025, annual | [NOAA Global Monitoring Laboratory: Mauna Loa CO2 data](https://gml.noaa.gov/ccgg/trends/data.html) |
-| India consumer price index, 2010 = 100 | 2011–2025, annual | [World Bank: Consumer price index](https://data.worldbank.org/indicator/FP.CPI.TOTL?locations=IN) |
-| India consumer-price inflation | 2011–2025, annual | [World Bank: Inflation, consumer prices](https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=IN) |
-| India life expectancy at birth | 2011–2024, annual | [World Bank: Life expectancy at birth](https://data.worldbank.org/indicator/SP.DYN.LE00.IN?locations=IN) |
-| India adult literacy, ages 15+ | 2011–2024, 9 irregular observations | [World Bank: Adult literacy rate](https://data.worldbank.org/indicator/SE.ADT.LITR.ZS?locations=IN) |
+| India population, historical census anchors | 1901–2011, decennial | [Census of India: Table A-02, decadal variation in population](https://censusindia.gov.in/nada/index.php/catalog/43333) |
+| India population, modern annual estimates | 1960–2025, annual | [World Bank: Population, total — India](https://data.worldbank.org/indicator/SP.POP.TOTL?locations=IN) |
+| World population, historical benchmark | 1900 single estimate, with a stored 1.55–1.762 billion published range | [US Census Bureau: Historical Estimates of World Population](https://www.census.gov/data/tables/time-series/demo/international-programs/historical-est-worldpop.html) |
+| World population, modern annual estimates | 1960–2025, annual | [World Bank: Population, total — World](https://data.worldbank.org/indicator/SP.POP.TOTL?locations=1W) |
+| Internet use in India | 1990–2025, annual observations | [World Bank: Individuals using the Internet](https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=IN) |
+| Electricity access in India | 1993–2024, annual | [World Bank: Access to electricity](https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS?locations=IN) |
+| Atmospheric CO2, historical proxy | 1900 single Law Dome gas-age sample | [NOAA NCEI: Law Dome Ice Core 2000-Year greenhouse-gas data](https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=noaa-icecore-25830) |
+| Atmospheric CO2, modern annual mean | 1959–2025, annual | [NOAA Global Monitoring Laboratory: Mauna Loa CO2 data](https://gml.noaa.gov/ccgg/trends/data.html) |
+| India consumer price index, 2010 = 100 | 1960–2025, annual | [World Bank: Consumer price index](https://data.worldbank.org/indicator/FP.CPI.TOTL?locations=IN) |
+| India consumer-price inflation | 1960–2025, annual | [World Bank: Inflation, consumer prices](https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=IN) |
+| India life expectancy at birth, historical period estimates | Six published periods spanning 1901–1961 | [Government of India/MOSPI: Selected Socio-Economic Statistics India 2002](https://www.mospi.gov.in/sites/default/files/publication_reports/ssd01_2002_final.pdf) |
+| India life expectancy at birth, modern annual estimates | 1960–2024, annual | [World Bank: Life expectancy at birth](https://data.worldbank.org/indicator/SP.DYN.LE00.IN?locations=IN) |
+| India adult literacy, ages 15+ | 1981–2024, 14 irregular observations | [World Bank: Adult literacy rate](https://data.worldbank.org/indicator/SE.ADT.LITR.ZS?locations=IN) |
 | India CPI Combined, 2012 = 100 | 2011-12–2023-24 fiscal years | [RBI Handbook, Table 37: Consumer Price Index, Annual Average](https://www.rbi.org.in/Scripts/PublicationsView.aspx?id=22511) |
 | NIFTY 50 year-end price index | 2011–2025, annual endpoints | [National Stock Exchange: Historical Index Data](https://www.nseindia.com/reports-indices-historical-index-data) |
 
-For every series, the stored JSON records observation years and values together with series-level units, source title, source URL, access date, notes, and interpolation policy. It also records per-value source links where the NIFTY archive requires them.
+For every series, the stored JSON records observation years and values together with series-level units, source title, source URL, access date, notes, and interpolation policy. It also records historical uncertainty/range fields where available and per-value source links where the NIFTY archive requires them. A one-point historical benchmark is intentionally not treated as an annual series.
 
 ### Formula and assumption sources
 
@@ -450,13 +459,14 @@ Most biological constants other than sleep are presented honestly as explicit ed
 
 ## Testing
 
-The unit suite currently contains **47 tests across six files**:
+The unit suite currently contains **51 tests across six files**:
 
 - Gregorian leap years, impossible and future dates, UTC whole-day differences, exact calendar age, 29 February anniversaries, weekday/leap-day counts, date-based sub-day modelling, and century percentages;
 - prime detection, complete prime factorisation, divisor count/sum, palindromes, triangular/square/Fibonacci tests, digital roots, Roman numerals, special-number milestones, digit arrangements, and both birthday probabilities;
 - biological units, piecewise sleep, Lab overrides, invalid inputs, and uncertainty ranges;
 - live time-of-day conversion, newborn sleep, biological counter-rate propagation, DST transitions, and midnight continuity;
-- orbital distance, Earth/Moon/galactic calculations, lunar recession, interpolation without extrapolation, fiscal-year labels, CPI ratios, compound inflation, number formatting, scientific notation, rounding, and compatible unit conversions.
+- orbital distance, Earth/Moon/galactic calculations, lunar recession, interpolation without extrapolation, honest comparison-window modes for pre-series and post-release birthdays, fiscal-year labels, CPI ratios, compound inflation, number formatting, scientific notation, rounding, and compatible unit conversions;
+- metadata and finite comparison-window coverage for every stored world series for a 1900 birthday, including explicit tests that the 1901 Indian census anchor and ranged 1900 world-population estimate are not mislabelled as exact 1900 measurements.
 
 Run the automated checks with:
 
@@ -466,14 +476,16 @@ npm run build
 npm run audit:browser
 ```
 
-The checked-in tests use 18 July 2011, 29 February 2012, 1 January 2000, 14 August 2026 as the fixed test “today,” and invalid future dates where relevant.
+The checked-in cases include birthdays on 1 January 1900, 18 July 2011, 29 February 2012, and 1 January 2000. Date-arithmetic tests use 14 August 2026 as a fixed “today,” and the browser audit also checks invalid pre-1900 and future inputs.
 
 ## Known limitations
 
-- World-data coverage begins in 2011. Earlier visitors receive a coverage notice rather than a false birth-year comparison.
+- The supported input range begins on 1 January 1900. Earlier dates are rejected because the project does not promise researched world-data coverage before that boundary.
 - The stored indicators stop in 2024 or 2025, while RBI fiscal-year context stops at 2023-24. They are described by those years, not as 2026 values.
 - The snapshot can become stale or be revised upstream. Updating it is a deliberate research task; the application never silently fetches newer values.
-- Literacy is sparse and appears only for a birth year with an actual stored observation. NIFTY is also restricted to stored annual endpoints.
+- A result card is guaranteed for each supported world topic, but several records begin after 1900. Internet, electricity, CPI/inflation, adult literacy, and NIFTY cards for earlier visitors start at the first verified stored observation during that lifetime; they do not claim to measure the birth year.
+- Historical and modern endpoints sometimes use different methods: decennial census versus mid-year estimate, retrospective world-population estimate versus modern annual estimate, ice-core proxy versus atmospheric monitoring, or historical period life table versus modern modelled series. Those changes limit strict comparability and are disclosed in the card and maths sheet.
+- Literacy is sparse and never interpolated. NIFTY is restricted to stored annual endpoints.
 - Hours, minutes, seconds and their logarithmic view are live date-based models rather than precise personal clock readings; their maths sheets state the resulting uncertainty.
 - Biological values are simplified educational models. Most defaults are project assumptions rather than separately sourced medical averages; the uncertainty bands are illustrative, not statistically calibrated.
 - School days are timetable potential, not attendance. The fixed season definition is not an India-specific climate calendar.

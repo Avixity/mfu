@@ -92,10 +92,10 @@
             <div class="birthday-picker" id="birthday-picker">
               <span class="birthday-picker__copy">
                 <input class="birthday-picker__text" id="birth-date-text" name="birthDateText" type="text" required autocomplete="bday" inputmode="numeric" maxlength="14" placeholder="DD / MM / YYYY" spellcheck="false" aria-describedby="birth-date-hint form-error" />
-                <small id="birth-date-hint">Type DD / MM / YYYY, or use the calendar</small>
+                <small id="birth-date-hint">Type DD / MM / YYYY (1900 or later), or use the calendar</small>
               </span>
               <button class="birthday-picker__action" id="open-calendar" type="button" aria-label="Open calendar"><svg aria-hidden="true"><use href="#icon-calendar"></use></svg><span>Calendar</span></button>
-              <input class="birthday-picker__native" id="birth-date" type="date" tabindex="-1" aria-hidden="true" />
+              <input class="birthday-picker__native" id="birth-date" type="date" min="1900-01-01" tabindex="-1" aria-hidden="true" />
             </div>
           </div>
           <p class="form-error" id="form-error" role="alert" hidden></p>
@@ -197,7 +197,7 @@
             <header class="section-heading reveal">
               <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-globe"></use></svg><p class="section-index">04 / The World During Your Lifetime</p></div>
               <h2 id="world-title">You changed. India changed. The planet did too.</h2>
-              <p>Stored public datasets compare your birth year with the latest published year—not with an imaginary “today”.</p>
+              <p>Stored public datasets use your birth year when possible, or the first comparable record in your lifetime—never an invented value.</p>
             </header>
             <div class="world-chart reveal" id="world-chart"></div>
             <div class="stat-stream" id="world-stats"></div>

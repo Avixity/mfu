@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import timeline from '../src/data/math-timeline.json';
 import worldData from '../src/data/world-data.json';
-import { purchasingPowerEquivalent } from '../src/calculations/world.js';
+import { comparisonWindow, purchasingPowerEquivalent } from '../src/calculations/world.js';
 
 describe('offline research data', () => {
   it('contains one complete, sourced mathematics story for every year from 2011 to 2026', () => {
@@ -23,7 +23,7 @@ describe('offline research data', () => {
     for (const series of Object.values(worldData.series)) {
       expect(series.source.url).toMatch(/^https:\/\//);
       expect(series.source.dateAccessed).toBe('2026-08-14');
-      expect(series.values.length).toBeGreaterThan(1);
+      expect(series.values.length).toBeGreaterThan(0);
       expect(series.values.every(({ value }) => Number.isFinite(value))).toBe(true);
       const numericYears = series.values.map(({ year }) => Number.parseInt(year, 10));
       expect(numericYears).toEqual([...numericYears].sort((a, b) => a - b));
@@ -45,5 +45,34 @@ describe('offline research data', () => {
   it('preserves the no-interpolation policy for irregular literacy observations', () => {
     expect(worldData.series.indiaAdultLiteracy.interpolation.allowed).toBe(false);
     expect(worldData.series.indiaAdultLiteracy.displayPolicy).toBeTruthy();
+  });
+
+  it('provides an honest calculable window for a visitor born in 1900', () => {
+    for (const series of Object.values(worldData.series)) {
+      const window = comparisonWindow(series, 1900, {
+        interpolateMissing: Boolean(series.interpolation?.allowed),
+      });
+      expect(window.available).toBe(true);
+      expect(['birth-year', 'series-start']).toContain(window.mode);
+      expect(Number.isFinite(window.start.value)).toBe(true);
+      expect(Number.isFinite(window.latest.value)).toBe(true);
+      expect(window.start.year).toBeGreaterThanOrEqual(1900);
+      expect(window.start.year).toBeLessThanOrEqual(window.latest.year);
+    }
+  });
+
+  it('keeps historical benchmarks separate and labels their uncertainty', () => {
+    const india = worldData.series.indiaPopulationHistorical;
+    expect(india.values[0].year).toBe(1901);
+    expect(india.historicalBenchmark).toBe(true);
+    expect(india.notes.join(' ')).toMatch(/first census during their lifetime/i);
+
+    const world = worldData.series.worldPopulationHistorical;
+    const benchmark = world.values[0];
+    expect(benchmark.year).toBe(1900);
+    expect(benchmark.lowerBound).toBeLessThan(benchmark.value);
+    expect(benchmark.upperBound).toBeGreaterThan(benchmark.value);
+    expect(benchmark.estimateType).toMatch(/estimate/i);
+    expect(world.interpolation.allowed).toBe(false);
   });
 });

@@ -400,6 +400,58 @@ try {
     hoursEstimated: document.querySelector('[data-stat-id="time-hours"] .classification').textContent.trim() === 'Estimated'
   }))()`);
 
+  const beforeMinimumAudit = await evaluate(cdp, `(() => {
+    const input = document.querySelector('#birth-date-text');
+    input.value = '31 / 12 / 1899';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('#birth-form').requestSubmit();
+    return {
+      rejected: !document.querySelector('#form-error').hidden,
+      explainsMinimum: document.querySelector('#form-error').textContent.includes('1900'),
+      invalidMarked: input.getAttribute('aria-invalid') === 'true'
+    };
+  })()`);
+
+  await evaluate(cdp, `(() => {
+    const input = document.querySelector('#birth-date-text');
+    input.value = '01 / 01 / 1900';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('#birth-form').requestSubmit();
+  })()`);
+  await waitForExpression(cdp, `document.querySelector('#opening-date').textContent.includes('1900')`);
+  const coverage1900Audit = await evaluate(cdp, `(() => {
+    const expectedWorldIds = [
+      'world-india-population', 'world-population', 'world-internet',
+      'world-electricity', 'world-co2', 'world-inflation',
+      'world-purchasing-power', 'world-life-expectancy',
+      'world-literacy', 'world-nifty'
+    ];
+    const worldStats = [...document.querySelectorAll('#world-stats .stat')];
+    const allStats = [...document.querySelectorAll('.stat')];
+    const definitions = [...document.querySelectorAll('#fingerprint-stats .stat__definitions')];
+    const invalidOutput = /cannot be made|unavailable|NaN|undefined|Infinity/i;
+    const firstDefinition = definitions[0];
+    firstDefinition?.querySelector('summary')?.click();
+    return {
+      nativeMinimum: document.querySelector('#birth-date').min === '1900-01-01',
+      hintExplainsMinimum: document.querySelector('#birth-date-hint').textContent.includes('1900'),
+      correctSelectedDate: document.querySelector('#birth-date').value === '1900-01-01',
+      everyWorldResultRendered: expectedWorldIds.every(id => document.querySelector('[data-stat-id="' + id + '"]')),
+      everyWorldResultHasMaths: worldStats.every(stat => stat.querySelector('[data-math-id]')),
+      noUnavailablePlaceholder: !document.querySelector('[data-stat-id="world-unavailable-series"], [data-stat-id="world-coverage"]')
+        && !worldStats.some(stat => invalidOutput.test(stat.textContent)),
+      everyNarrativeStatComplete: allStats.every(stat => stat.querySelector('.stat__value')?.textContent.trim()
+        && stat.querySelector('[data-math-id]')
+        && stat.querySelector('.classification')),
+      noInvalidNarrativeOutput: !allStats.some(stat => invalidOutput.test(stat.querySelector('.stat__value')?.textContent || '')),
+      completeReport: document.querySelectorAll('.report-item').length >= 10
+        && !invalidOutput.test(document.querySelector('#report-sheet').textContent),
+      definitionControlCount: definitions.length,
+      definitionExpanded: Boolean(firstDefinition?.open),
+      definitionTextPresent: Boolean(firstDefinition?.querySelector('dd')?.textContent.trim())
+    };
+  })()`);
+
   const audit = {
     viewports: results,
     calendarControl: calendarControlAudit,
@@ -415,6 +467,8 @@ try {
     reset: resetAudit,
     futureDateValidation: futureAudit,
     selectedDate: selectedDateAudit,
+    beforeMinimumDate: beforeMinimumAudit,
+    coverage1900: coverage1900Audit,
     runtimeExceptions: exceptions,
     consoleProblems,
   };
@@ -432,6 +486,9 @@ try {
   if (printMetrics.printHeadingLevels.join(',') !== 'H1,H2,H3') process.exitCode = 1;
   if (privacyAudit.storedDate !== '2011-07-18' || privacyAudit.storageKeys.length !== 1) process.exitCode = 1;
   if (Object.values(resetAudit).some((value) => !value) || !futureAudit.rejected || !futureAudit.invalidMarked || Object.values(selectedDateAudit).some((value) => !value)) process.exitCode = 1;
+  if (Object.values(beforeMinimumAudit).some((value) => !value)) process.exitCode = 1;
+  if (coverage1900Audit.definitionControlCount < 10
+    || Object.entries(coverage1900Audit).some(([key, value]) => key !== 'definitionControlCount' && !value)) process.exitCode = 1;
 } finally {
   try {
     await cdp?.send('Browser.close');

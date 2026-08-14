@@ -201,6 +201,71 @@ export function compareSeriesFromYear(series, birthYear) {
   };
 }
 
+/**
+ * Choose an honest comparison window for a visitor's lifetime.
+ *
+ * - Within the verified range, use the birth-year observation (or an explicitly
+ *   permitted interpolation).
+ * - When the visitor predates a series, begin with the first verified record
+ *   in their lifetime instead of inventing a birth-year value.
+ * - When the visitor is newer than the latest release, return that latest
+ *   value as a dated benchmark and expose the data lag.
+ *
+ * The function always returns a useful, source-backed result and never
+ * extrapolates beyond the supplied observations.
+ */
+export function comparisonWindow(
+  series,
+  birthYear,
+  { interpolateMissing = true } = {},
+) {
+  const coordinate = yearCoordinate(birthYear);
+  if (!Number.isFinite(coordinate)) {
+    throw new TypeError("Birth year must be a year number or fiscal-year label.");
+  }
+
+  const sorted = normaliseSeries(series);
+  const latest = sorted.at(-1);
+  const first = sorted[0];
+
+  if (coordinate > latest.year) {
+    return {
+      available: true,
+      start: latest,
+      latest,
+      mode: "latest-benchmark",
+      birthYear: coordinate,
+      dataLagYears: coordinate - latest.year,
+      startIsInterpolated: false,
+    };
+  }
+
+  const birthPoint = valueAtYear(series, coordinate, { interpolateMissing });
+  if (birthPoint) {
+    return {
+      available: true,
+      start: birthPoint,
+      latest,
+      mode: "birth-year",
+      birthYear: coordinate,
+      dataLagYears: 0,
+      startIsInterpolated: Boolean(birthPoint.interpolated),
+    };
+  }
+
+  const firstInLifetime = sorted.find((point) => point.year >= coordinate) || latest;
+  return {
+    available: true,
+    start: firstInLifetime,
+    latest,
+    mode: "series-start",
+    birthYear: coordinate,
+    yearsAfterBirth: Math.max(0, firstInLifetime.year - coordinate),
+    skippedMissingBirthYear: coordinate >= first.year,
+    startIsInterpolated: false,
+  };
+}
+
 /** ₹amount in the base year expressed using a later CPI index. */
 export function purchasingPowerEquivalent(amount, baseIndex, latestIndex) {
   if (!Number.isFinite(amount) || amount < 0) throw new RangeError("Amount must be non-negative.");

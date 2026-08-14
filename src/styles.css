@@ -774,6 +774,67 @@ body.has-results .landing__mark {
   white-space: pre-wrap;
 }
 
+.stat__definitions {
+  margin: 0 0 1.1rem;
+  border-block: 1px solid var(--line);
+}
+
+.stat__definitions summary {
+  display: flex;
+  min-height: 2.7rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.stat__definitions summary::-webkit-details-marker {
+  display: none;
+}
+
+.stat__definitions summary::after {
+  flex: 0 0 auto;
+  color: var(--accent);
+  content: "+";
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  font-weight: 450;
+  line-height: 1;
+}
+
+.stat__definitions[open] summary::after {
+  content: "\2212";
+}
+
+.stat__definition-list {
+  margin: 0;
+  padding: 0 0 0.9rem;
+}
+
+.stat__definition-list dt {
+  margin: 0.8rem 0 0.2rem;
+  color: var(--accent);
+  font-size: 0.73rem;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+}
+
+.stat__definition-list dt:first-child {
+  margin-top: 0.25rem;
+}
+
+.stat__definition-list dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
 .reveal,
 .stat {
   opacity: 0;

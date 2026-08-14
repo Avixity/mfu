@@ -7,6 +7,7 @@ import {
   SPACE_CONSTANTS,
 } from "../src/calculations/space.js";
 import {
+  comparisonWindow,
   compoundInflation,
   linearInterpolation,
   purchasingPowerEquivalent,
@@ -79,6 +80,49 @@ describe("world-data calculations", () => {
       value: 93.3,
       interpolated: false,
     });
+  });
+
+  it("chooses a source-backed comparison window without extrapolating", () => {
+    expect(comparisonWindow(series, 2010)).toMatchObject({
+      available: true,
+      mode: "birth-year",
+      start: { year: 2010, value: 10 },
+      latest: { year: 2012, value: 14 },
+      dataLagYears: 0,
+      startIsInterpolated: false,
+    });
+
+    expect(comparisonWindow(series, 2011)).toMatchObject({
+      mode: "birth-year",
+      start: { year: 2011, value: 12, method: "linear-interpolation" },
+      startIsInterpolated: true,
+    });
+
+    expect(comparisonWindow(series, 1900)).toMatchObject({
+      mode: "series-start",
+      start: { year: 2010, value: 10 },
+      latest: { year: 2012, value: 14 },
+      yearsAfterBirth: 110,
+      skippedMissingBirthYear: false,
+    });
+
+    expect(comparisonWindow(series, 2011, { interpolateMissing: false })).toMatchObject({
+      mode: "series-start",
+      start: { year: 2012, value: 14 },
+      yearsAfterBirth: 1,
+      skippedMissingBirthYear: true,
+    });
+
+    expect(comparisonWindow(series, 2014)).toMatchObject({
+      mode: "latest-benchmark",
+      start: { year: 2012, value: 14 },
+      latest: { year: 2012, value: 14 },
+      dataLagYears: 2,
+    });
+  });
+
+  it("rejects an invalid comparison-window birth year", () => {
+    expect(() => comparisonWindow(series, "not-a-year")).toThrow(TypeError);
   });
 
   it("uses price-index ratios and compound rates correctly", () => {

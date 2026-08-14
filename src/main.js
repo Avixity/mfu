@@ -29,6 +29,7 @@ import {
   calculateSpaceJourney,
 } from './calculations/space.js';
 import {
+  comparisonWindow,
   purchasingPowerEquivalent,
   valueAtYear,
 } from './calculations/world.js';
@@ -57,6 +58,7 @@ const [worldData, timelineData] = await Promise.all([
 ]);
 
 const STORAGE_KEY = 'mathematics-of-you.birth-date';
+const MINIMUM_BIRTH_YEAR = 1900;
 const CURRENT_DATA_ACCESS_DATE = worldData.dateAccessed;
 const COVID_BOUNDARY = { year: 2020, month: 3, day: 11 };
 const LOCAL_CALCULATION_SOURCE = {
@@ -80,6 +82,151 @@ const INDIA_SCHOOL_DAYS_SOURCE = {
   title: 'India Code — Right to Education Act, 2009, Schedule of norms and standards',
   url: 'https://www.indiacode.nic.in/bitstream/123456789/2086/5/a2009-35.pdf',
 };
+
+const FINGERPRINT_DEFINITIONS = Object.freeze({
+  'fingerprint-decimal': [
+    {
+      term: 'Decimal (base ten)',
+      definition: 'The everyday number system. Each place is worth ten times the place to its right, and it uses the digits 0 to 9.',
+    },
+    {
+      term: 'Completed day',
+      definition: 'A whole calendar day that has fully passed since the date of birth; an unfinished current day is not counted.',
+    },
+  ],
+  'fingerprint-representations': [
+    {
+      term: 'Binary',
+      definition: 'A base-two number system using only 0 and 1. Its place values are powers of two.',
+    },
+    {
+      term: 'Hexadecimal',
+      definition: 'A base-sixteen number system using 0 to 9 and A to F. Its place values are powers of sixteen.',
+    },
+    {
+      term: 'Roman numerals',
+      definition: 'A notation built from symbols such as I, V, X, L, C, D and M instead of place values.',
+    },
+    {
+      term: 'Scientific notation',
+      definition: 'A compact way to write a number as a value from 1 up to 10 multiplied by a power of ten.',
+    },
+  ],
+  'fingerprint-prime': [
+    {
+      term: 'Prime number',
+      definition: 'A whole number greater than 1 with exactly two positive factors: 1 and itself.',
+    },
+    {
+      term: 'Composite number',
+      definition: 'A whole number greater than 1 with more than two positive factors.',
+    },
+  ],
+  'fingerprint-factors': [
+    {
+      term: 'Prime factorisation',
+      definition: 'Writing a whole number as a product made entirely from prime numbers. Apart from order, the result is unique.',
+    },
+    {
+      term: 'Exponent',
+      definition: 'The small raised number that tells how many times a base is multiplied by itself, as in 2 cubed = 2 x 2 x 2.',
+    },
+  ],
+  'fingerprint-divisors': [
+    {
+      term: 'Factor or divisor',
+      definition: 'A whole number that divides another whole number exactly, leaving no remainder.',
+    },
+    {
+      term: 'Factor count',
+      definition: 'The number of distinct positive whole-number factors a number has.',
+    },
+    {
+      term: 'Sum of factors',
+      definition: 'The result of adding every positive factor of the number, including 1 and the number itself.',
+    },
+  ],
+  'fingerprint-traits': [
+    {
+      term: 'Even or odd',
+      definition: 'An even integer is divisible by 2; an odd integer leaves a remainder of 1 when divided by 2.',
+    },
+    {
+      term: 'Palindrome',
+      definition: 'A number whose digits read the same forwards and backwards, such as 5,555.',
+    },
+    {
+      term: 'Triangular number',
+      definition: 'A number that can be arranged as a triangle of dots: 1, 3, 6, 10 and so on.',
+    },
+    {
+      term: 'Perfect square',
+      definition: 'A whole number made by multiplying an integer by itself, such as 49 = 7 x 7.',
+    },
+    {
+      term: 'Fibonacci number',
+      definition: 'A member of the sequence 0, 1, 1, 2, 3, 5, 8... in which each new term is the sum of the previous two.',
+    },
+    {
+      term: 'Digital root',
+      definition: 'The single digit reached by repeatedly adding a number\'s digits; for example, 347 becomes 14, then 5.',
+    },
+  ],
+  'fingerprint-next-prime': [
+    {
+      term: 'Next prime',
+      definition: 'The smallest prime number that is greater than the current completed-day age.',
+    },
+  ],
+  'fingerprint-palindromes': [
+    {
+      term: 'Palindromic age',
+      definition: 'An age in completed days whose decimal digits read identically from left to right and right to left.',
+    },
+  ],
+  'fingerprint-ten-thousand': [
+    {
+      term: 'Difference',
+      definition: 'The distance between two numbers found by subtraction; here it measures how far the current age is from 10,000 days.',
+    },
+  ],
+  'fingerprint-century-fraction': [
+    {
+      term: 'Fraction',
+      definition: 'A ratio written as one number over another: the numerator counts parts and the denominator describes the whole.',
+    },
+    {
+      term: 'Greatest common divisor (GCD)',
+      definition: 'The largest positive integer that divides two numbers exactly. Dividing both parts of a fraction by it gives simplest form.',
+    },
+  ],
+  'fingerprint-date-arrangements': [
+    {
+      term: 'Permutation',
+      definition: 'An arrangement in which order matters. Swapping two different digits produces a different permutation.',
+    },
+    {
+      term: 'Factorial',
+      definition: 'For a positive integer n, n! means n x (n - 1) x ... x 2 x 1. It counts arrangements before repeated items are removed.',
+    },
+  ],
+  'fingerprint-covid': [
+    {
+      term: 'Percentage',
+      definition: 'A ratio expressed out of 100. A lifetime percentage is the relevant days divided by all completed days, multiplied by 100.',
+    },
+  ],
+  'fingerprint-logarithm': [
+    {
+      term: 'Base-ten logarithm',
+      definition: 'The power to which 10 must be raised to make a number. For example, log base 10 of 1,000 is 3 because 10 cubed is 1,000.',
+    },
+    {
+      term: 'Order of magnitude',
+      definition: 'A number\'s approximate scale measured in powers of ten. Moving up one order of magnitude means becoming about ten times larger.',
+    },
+  ],
+});
 
 const PLANET_PERIODS = Object.freeze({
   Mercury: 87.969,
@@ -222,6 +369,26 @@ function createSvgIcon(name, className = '') {
   return svg;
 }
 
+function createDefinitionDetails(stat) {
+  const definitions = FINGERPRINT_DEFINITIONS[stat.id];
+  if (!definitions?.length) return null;
+
+  const details = createElement('details', 'stat__definitions');
+  const summary = createElement('summary', '', 'View definitions');
+  summary.setAttribute('aria-label', `View definitions for ${stat.math.title}`);
+  const list = createElement('dl', 'stat__definition-list');
+
+  for (const { term, definition } of definitions) {
+    list.append(
+      createElement('dt', '', term),
+      createElement('dd', '', definition),
+    );
+  }
+
+  details.append(summary, list);
+  return details;
+}
+
 function createStatElement(stat) {
   const article = createElement('article', 'stat');
   article.dataset.statId = stat.id;
@@ -255,6 +422,9 @@ function createStatElement(stat) {
     full.append(createElement('code', '', stat.fullValue));
     aside.append(full);
   }
+
+  const definitions = createDefinitionDetails(stat);
+  if (definitions) aside.append(definitions);
 
   const button = createElement('button', 'math-link', 'Show the maths');
   button.type = 'button';
@@ -1206,30 +1376,121 @@ function renderProbability(roomSize) {
   modal.updateDetail('probability-specific', mathDetails['probability-specific']);
 }
 
-function birthPointFor(series, { exactOnly = false } = {}) {
-  return valueAtYear(series.values, state.birth.year, {
-    interpolateMissing: !exactOnly && Boolean(series.interpolation?.allowed),
-  });
-}
-
 function dataMethodNote(point) {
   if (!point) return '';
+  if (!point.interpolated && point.periodLabel) {
+    return `${point.periodLabel} is a published ${point.observationType || 'period estimate'}, not a measurement for one exact calendar year.`;
+  }
+  if (!point.interpolated && point.observationType) {
+    return `${point.year} is a stored ${point.observationType}; its method is identified in the source notes.`;
+  }
+  if (!point.interpolated && point.estimateType) {
+    return `${point.year} is a published ${point.estimateType}, not a literal count.`;
+  }
   if (!point.interpolated) return `${point.year} is a stored published observation.`;
   const [lower, upper] = point.surroundingPoints;
   return `${point.year} was linearly interpolated between ${lower.year} and ${upper.year}; it is not an official measurement.`;
 }
 
-function coverageText(series) {
-  if (series.coverage && typeof series.coverage === 'object') {
-    return `${series.coverage.from}–${series.coverage.to}`;
+function pointYearLabel(point) {
+  return point.periodLabel || point.yearLabel || String(point.year);
+}
+
+function historicalSeriesFor(series) {
+  const historicalKeyById = {
+    indiaPopulation: 'indiaPopulationHistorical',
+    worldPopulation: 'worldPopulationHistorical',
+    atmosphericCo2MaunaLoa: 'atmosphericCo2Historical',
+    indiaLifeExpectancy: 'indiaLifeExpectancyHistorical',
+  };
+  return worldData.series[historicalKeyById[series.id]] || null;
+}
+
+function sourceFromPoint(point, fallbackSeries) {
+  return {
+    title: point.sourceTitle || fallbackSeries.source.title,
+    url: point.sourceUrl || fallbackSeries.source.url,
+  };
+}
+
+function sourcesForWindow(window, primarySeries) {
+  const candidates = [
+    sourceFromPoint(window.start, window.startSeries || primarySeries),
+    sourceFromPoint(window.latest, window.latestSeries || primarySeries),
+  ];
+  return candidates.filter((source, index) => candidates.findIndex((other) => (
+    other.url === source.url && other.title === source.title
+  )) === index);
+}
+
+function lifetimeDataWindow(series, { exactOnly = false } = {}) {
+  const birthYear = state.birth.year;
+  const interpolateMissing = !exactOnly && Boolean(series.interpolation?.allowed);
+  const historical = historicalSeriesFor(series);
+  const primaryFirstYear = Number(series.values[0].year);
+
+  if (historical && birthYear < primaryFirstYear) {
+    const periodPoint = historical.values.find((point) => (
+      Number(point.periodStart) <= birthYear && Number(point.periodEnd) > birthYear
+    ));
+    const historicalPoint = periodPoint || valueAtYear(historical, birthYear, {
+      interpolateMissing: !exactOnly && Boolean(historical.interpolation?.allowed),
+    });
+    const firstHistoricalPoint = historicalPoint || historical.values.find((point) => Number(point.year) >= birthYear);
+
+    if (firstHistoricalPoint) {
+      const start = historicalPoint || valueAtYear(historical, firstHistoricalPoint.year, { interpolateMissing: false });
+      const latest = valueAtYear(series, series.values.at(-1).year, { interpolateMissing: false });
+      const usesBirthPeriod = Boolean(periodPoint);
+      return {
+        available: true,
+        start,
+        latest,
+        birthYear,
+        mode: historicalPoint && !usesBirthPeriod && Number(historicalPoint.year) === birthYear
+          ? 'birth-year'
+          : 'series-start',
+        yearsAfterBirth: usesBirthPeriod ? 0 : Math.max(0, Number(start.year) - birthYear),
+        startIsInterpolated: Boolean(start.interpolated),
+        crossSeries: true,
+        startSeries: historical,
+        latestSeries: series,
+      };
+    }
   }
-  return String(series.coverage || 'stored');
+
+  return {
+    ...comparisonWindow(series, birthYear, { interpolateMissing }),
+    startSeries: series,
+    latestSeries: series,
+  };
+}
+
+function comparisonWindowNote(window) {
+  const rangeNote = Number.isFinite(window.start.lowerBound) && Number.isFinite(window.start.upperBound)
+    ? ` Published estimates for ${pointYearLabel(window.start)} span ${formatCompactValue(window.start.lowerBound)} to ${formatCompactValue(window.start.upperBound)}.`
+    : '';
+  if (window.mode === 'latest-benchmark') {
+    return `The latest stored observation is ${window.dataLagYears} ${plural(window.dataLagYears, 'year')} earlier than the visitor’s birth year; no future value is invented.`;
+  }
+  if (window.mode === 'series-start') {
+    if (window.yearsAfterBirth > 0) {
+      return `Comparable records begin in ${pointYearLabel(window.start)}, ${window.yearsAfterBirth} ${plural(window.yearsAfterBirth, 'year')} after birth. The change is measured from that first in-lifetime record, not from an invented birth-year value.${rangeNote}`;
+    }
+    return `The first comparable record in this lifetime is the published ${pointYearLabel(window.start)} benchmark; no earlier value is invented.${rangeNote}`;
+  }
+  return `${dataMethodNote(window.start)}${rangeNote}`;
+}
+
+function comparisonPeriod(window) {
+  return window.mode === 'birth-year'
+    ? `between ${pointYearLabel(window.start)} and ${pointYearLabel(window.latest)}`
+    : `from the first comparable record in ${pointYearLabel(window.start)} to ${pointYearLabel(window.latest)}`;
 }
 
 function buildWorldStats() {
   const s = worldData.series;
   const stats = [];
-  const unavailable = [];
 
   const addChange = ({
     id,
@@ -1242,207 +1503,209 @@ function buildWorldStats() {
     differenceLabel = 'change',
     noteExtra = '',
     uncertainty,
+    endpointFormatter = valueFormatter,
+    endpointUnit = series.unit,
+    exactOnly = false,
   }) => {
-    const birthPoint = birthPointFor(series);
-    const latest = series.values.at(-1);
-    if (!birthPoint || state.birth.year > Number(latest.year)) {
-      unavailable.push(`${series.label}: no verified ${state.birth.year} observation within its ${coverageText(series)} coverage.`);
-      return false;
+    const window = lifetimeDataWindow(series, { exactOnly });
+    const start = window.start;
+    const latest = window.latest;
+    const uncertaintyNotes = uncertainty || [
+      ...(window.crossSeries ? window.startSeries?.notes || [] : []),
+      ...(series.notes || []),
+    ];
+
+    if (window.mode === 'latest-benchmark' || Number(start.year) === Number(latest.year)) {
+      const lagNote = window.mode === 'latest-benchmark'
+        ? comparisonWindowNote(window)
+        : `The visitor’s birth year and the latest stored year are both ${latest.year}, so a later endpoint does not yet exist.`;
+      stats.push({
+        id,
+        before: `The latest published ${subject.toLowerCase()} benchmark is `,
+        numeric: latest.value,
+        formatter: endpointFormatter,
+        after: `${endpointUnit ? ` ${endpointUnit}` : ''} in ${pointYearLabel(latest)}.`,
+        classification: 'Data-based',
+        note: `${lagNote}${noteExtra ? ` ${noteExtra}` : ''}`,
+        fullValue: `${pointYearLabel(latest)}: ${formatNumber(latest.value, { maximumFractionDigits: 6 })} ${series.unit}`,
+        math: detail({
+          title: `${subject} latest published benchmark`, classification: 'Data-based',
+          formula: window.mode === 'latest-benchmark'
+            ? 'data lag = birth year − latest published year'
+            : 'latest benchmark = stored value for the latest published year',
+          substitution: window.mode === 'latest-benchmark'
+            ? `${state.birth.year} − ${latest.year}`
+            : `${series.id}[${latest.year}]`,
+          result: window.mode === 'latest-benchmark'
+            ? `${window.dataLagYears} ${plural(window.dataLagYears, 'year')} of data lag; latest value ${endpointFormatter(latest.value)} ${endpointUnit}`
+            : `${endpointFormatter(latest.value)} ${endpointUnit} in ${latest.year}`,
+          variables: { symbol: 'latest value', definition: `latest verified observation stored offline (${latest.year})`, value: latest.value },
+          assumptions: [lagNote, `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}.`],
+          uncertainty: uncertaintyNotes,
+          source: sourcesForWindow(window, series),
+        }),
+      });
+      return true;
     }
-    const change = latest.value - birthPoint.value;
+
+    const change = latest.value - start.value;
     const direction = change >= 0 ? 'increased by ' : 'decreased by ';
-    const displayValue = valueFormatter(Math.abs(change));
     stats.push({
       id, before: `${subject} ${direction}`, numeric: Math.abs(change), formatter: valueFormatter,
-      after: `${unitPhrase} between ${birthPoint.year} and ${latest.year}.`, classification: 'Data-based',
-      note: `From ${valueFormatter(birthPoint.value)} to ${valueFormatter(latest.value)}. ${dataMethodNote(birthPoint)} Latest stored year: ${latest.year}.${noteExtra ? ` ${noteExtra}` : ''}`,
-      fullValue: `${birthPoint.year}: ${formatNumber(birthPoint.value, { maximumFractionDigits: 6 })}; ${latest.year}: ${formatNumber(latest.value, { maximumFractionDigits: 6 })} ${series.unit}`,
+      after: `${unitPhrase} ${comparisonPeriod(window)}.`, classification: 'Data-based',
+      note: `From ${endpointFormatter(start.value)} ${endpointUnit} to ${endpointFormatter(latest.value)} ${endpointUnit}. ${comparisonWindowNote(window)}${window.crossSeries ? ' The endpoints use separately identified historical and modern methods.' : ''} Latest stored year: ${latest.year}.${noteExtra ? ` ${noteExtra}` : ''}`,
+      fullValue: `${pointYearLabel(start)}: ${formatNumber(start.value, { maximumFractionDigits: 6 })}; ${pointYearLabel(latest)}: ${formatNumber(latest.value, { maximumFractionDigits: 6 })} ${series.unit}`,
       math: detail({
         title: `${subject} ${differenceLabel}`, classification: 'Data-based',
-        formula: 'change = latest published value − birth-year value',
-        substitution: `${formatNumber(latest.value, { maximumFractionDigits: precision + 2 })} − ${formatNumber(birthPoint.value, { maximumFractionDigits: precision + 2 })}`,
+        formula: 'change = latest published value − first comparable lifetime value',
+        substitution: `${formatNumber(latest.value, { maximumFractionDigits: precision + 2 })} − ${formatNumber(start.value, { maximumFractionDigits: precision + 2 })}`,
         result: `${change >= 0 ? '+' : '−'}${valueFormatter(Math.abs(change))} ${resultUnit}`,
         variables: [
-          { symbol: 'birth-year value', definition: birthPoint.interpolated ? `interpolated ${birthPoint.year} value` : `published ${birthPoint.year} observation`, value: birthPoint.value },
+          { symbol: 'starting value', definition: window.mode === 'birth-year' ? `${start.interpolated ? 'interpolated' : 'published'} birth-year value (${pointYearLabel(start)})` : `first comparable in-lifetime record (${pointYearLabel(start)})`, value: start.value },
           { symbol: 'latest value', definition: `latest observation stored offline (${latest.year})`, value: latest.value },
         ],
-        assumptions: [dataMethodNote(birthPoint), `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}; later source revisions are not fetched while offline.`],
-        uncertainty: uncertainty || series.notes,
-        source: sourceFromSeries(series),
+        assumptions: [comparisonWindowNote(window), window.crossSeries ? 'The historical and modern endpoints use different documented collection or estimation methods; the subtraction is an approximate long-run comparison.' : '', `The local dataset was accessed ${CURRENT_DATA_ACCESS_DATE}; later source revisions are not fetched while offline.`].filter(Boolean),
+        uncertainty: uncertaintyNotes,
+        source: sourcesForWindow(window, series),
       }),
     });
     return true;
   };
 
-  const hasPopulation = addChange({
+  addChange({
     id: 'world-india-population', series: s.indiaPopulation, subject: 'India’s population',
-    valueFormatter: (value) => formatCompactValue(value), unitPhrase: ' people ', precision: 0, differenceLabel: 'population change',
+    valueFormatter: (value) => formatCompactValue(value), unitPhrase: ' people ', endpointUnit: 'people', precision: 0, differenceLabel: 'population change',
   });
   addChange({
     id: 'world-population', series: s.worldPopulation, subject: 'The world population',
-    valueFormatter: (value) => formatCompactValue(value), unitPhrase: ' people ', precision: 0, differenceLabel: 'population change',
+    valueFormatter: (value) => formatCompactValue(value), unitPhrase: ' people ', endpointUnit: 'people', precision: 0, differenceLabel: 'population change',
   });
   addChange({
     id: 'world-internet', series: s.indiaInternetUse, subject: 'Internet use in India',
-    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }), unitPhrase: ' percentage points ', resultUnit: 'percentage points', precision: 2,
+    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }), unitPhrase: ' percentage points ', resultUnit: 'percentage points', endpointFormatter: (value) => formatPercent(value, 1), endpointUnit: '', precision: 2,
   });
   addChange({
     id: 'world-electricity', series: s.indiaElectricityAccess, subject: 'Access to electricity in India',
-    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }), unitPhrase: ' percentage points ', resultUnit: 'percentage points', precision: 2,
+    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }), unitPhrase: ' percentage points ', resultUnit: 'percentage points', endpointFormatter: (value) => formatPercent(value, 1), endpointUnit: '', precision: 2,
   });
   addChange({
-    id: 'world-co2', series: s.atmosphericCo2MaunaLoa, subject: 'Annual mean atmospheric CO₂ at Mauna Loa',
-    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }), unitPhrase: ' parts per million ', precision: 2,
-    noteExtra: `Each stored annual mean has a reported uncertainty of ±${s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty} ppm.`,
+    id: 'world-co2', series: s.atmosphericCo2MaunaLoa, subject: 'Atmospheric CO₂ concentration',
+    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }), unitPhrase: ' parts per million ', endpointUnit: 'ppm', precision: 2,
+    noteExtra: `The latest direct annual mean reports ±${s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty} ppm; the separate 1900 Law Dome proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`,
     uncertainty: [
-      `Birth and latest annual means each report ±${s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty} ppm.`,
-      `A conservative bound for their difference is ±${formatNumber((s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty || 0) * 2, { maximumFractionDigits: 2 })} ppm when the endpoint uncertainties are added without assuming independence.`,
+      `Modern direct annual means report ±${s.atmosphericCo2MaunaLoa.values.at(-1).uncertainty} ppm; the 1900 ice-core proxy reports ±${s.atmosphericCo2Historical.values[0].uncertainty} ppm.`,
+      'When a comparison crosses from the ice-core proxy to Mauna Loa monitoring, site and measurement-method differences matter in addition to the stated endpoint uncertainty.',
+      ...s.atmosphericCo2Historical.notes,
       ...s.atmosphericCo2MaunaLoa.notes,
     ],
   });
 
-  const inflationBirth = birthPointFor(s.indiaConsumerPriceInflation);
-  const inflationLatest = s.indiaConsumerPriceInflation.values.at(-1);
-  if (inflationBirth && state.birth.year <= inflationLatest.year) {
-    const change = inflationLatest.value - inflationBirth.value;
+  addChange({
+    id: 'world-inflation', series: s.indiaConsumerPriceInflation, subject: 'India’s annual consumer-price inflation rate',
+    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }),
+    endpointFormatter: (value) => formatPercent(value, 2), endpointUnit: '',
+    unitPhrase: ' percentage points ', resultUnit: 'percentage points', precision: 4,
+    differenceLabel: 'rate change',
+    noteExtra: 'Annual inflation is a rate for one year; this compares endpoint rates and is not cumulative inflation.',
+  });
+
+  const cpiWindow = lifetimeDataWindow(s.indiaConsumerPriceIndex);
+  const cpiStart = cpiWindow.start;
+  const cpiLatest = cpiWindow.latest;
+  if (cpiWindow.mode === 'latest-benchmark') {
     stats.push({
-      id: 'world-inflation', before: 'India’s annual consumer-price inflation moved from ',
-      value: `${formatPercent(inflationBirth.value, 2)} to ${formatPercent(inflationLatest.value, 2)}`,
-      after: ` between ${inflationBirth.year} and ${inflationLatest.year}.`, classification: 'Data-based',
-      note: `A ${change >= 0 ? 'rise' : 'fall'} of ${formatNumber(Math.abs(change), { maximumFractionDigits: 2 })} percentage points; the latest stored year is ${inflationLatest.year}.`,
+      id: 'world-purchasing-power', before: 'The latest broad Indian CPI benchmark is ',
+      numeric: cpiLatest.value, formatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }),
+      after: ` in ${cpiLatest.year}.`, classification: 'Data-based',
+      note: `${comparisonWindowNote(cpiWindow)} A ₹100 birth-year equivalence will become possible when that year’s CPI is published.`,
       math: detail({
-        title: 'Change in Indian consumer-price inflation', classification: 'Data-based',
-        formula: 'change in inflation rate = latest annual rate − birth-year annual rate',
-        substitution: `${formatNumber(inflationLatest.value, { maximumFractionDigits: 4 })}% − ${formatNumber(inflationBirth.value, { maximumFractionDigits: 4 })}%`,
-        result: `${formatNumber(change, { maximumFractionDigits: 3 })} percentage points`,
-        variables: ['Inflation is the annual percentage change in a broad consumer-price index.', `Latest stored observation: ${inflationLatest.year}.`],
-        assumptions: [dataMethodNote(inflationBirth), 'An annual national average does not describe every household or individual price.'],
-        uncertainty: s.indiaConsumerPriceInflation.notes, source: sourceFromSeries(s.indiaConsumerPriceInflation),
+        title: 'CPI data-lag calculation', classification: 'Data-based',
+        formula: 'data lag = birth year − latest CPI year',
+        substitution: `${state.birth.year} − ${cpiLatest.year}`,
+        result: `${cpiWindow.dataLagYears} ${plural(cpiWindow.dataLagYears, 'year')} of data lag`,
+        variables: { symbol: 'CPI', definition: 'broad consumer price index', value: `${cpiLatest.value} in ${cpiLatest.year}` },
+        assumptions: 'No future CPI and no backward extrapolation are invented.',
+        uncertainty: s.indiaConsumerPriceIndex.notes,
+        source: sourceFromSeries(s.indiaConsumerPriceIndex),
       }),
     });
   } else {
-    unavailable.push(`${s.indiaConsumerPriceInflation.label}: latest stored year ${inflationLatest.year} does not support a ${state.birth.year} birth-year comparison.`);
-  }
-
-  const cpiBirth = birthPointFor(s.indiaConsumerPriceIndex);
-  const cpiLatest = s.indiaConsumerPriceIndex.values.at(-1);
-  if (cpiBirth && state.birth.year <= cpiLatest.year) {
-    const equivalent = purchasingPowerEquivalent(100, cpiBirth.value, cpiLatest.value);
+    const equivalent = purchasingPowerEquivalent(100, cpiStart.value, cpiLatest.value);
     stats.push({
-      id: 'world-purchasing-power', before: `₹100 in ${cpiBirth.year} is roughly equivalent to `,
+      id: 'world-purchasing-power', before: `₹100 in ${pointYearLabel(cpiStart)} is roughly equivalent to `,
       numeric: equivalent, formatter: (value) => `₹${formatNumber(value, { maximumFractionDigits: 0 })}`,
       after: ` in ${cpiLatest.year} by the broad CPI ratio.`, classification: 'Data-based',
-      note: 'This is an inflation adjustment for a national basket, not the price of a particular product.',
+      note: `${comparisonWindowNote(cpiWindow)} This is an inflation adjustment for a national basket, not the price of a particular product.`,
       fullValue: `₹${formatNumber(equivalent, { maximumFractionDigits: 2 })}`,
       math: detail({
         title: 'Purchasing-power comparison for ₹100', classification: 'Data-based',
-        formula: 'latest-year equivalent = ₹100 × (latest CPI ÷ birth-year CPI)',
-        substitution: `₹100 × (${formatNumber(cpiLatest.value, { maximumFractionDigits: 6 })} ÷ ${formatNumber(cpiBirth.value, { maximumFractionDigits: 6 })})`,
+        formula: 'latest-year equivalent = ₹100 × (latest CPI ÷ first comparable CPI)',
+        substitution: `₹100 × (${formatNumber(cpiLatest.value, { maximumFractionDigits: 6 })} ÷ ${formatNumber(cpiStart.value, { maximumFractionDigits: 6 })})`,
         result: `₹${formatNumber(equivalent, { maximumFractionDigits: 2 })} in ${cpiLatest.year}`,
-        variables: [
-          { symbol: 'CPI', definition: 'consumer price index; only the ratio matters', value: `${cpiBirth.year}: ${cpiBirth.value}, ${cpiLatest.year}: ${cpiLatest.value}` },
-        ],
-        assumptions: ['A broad national CPI basket is used; individual spending differs.', dataMethodNote(cpiBirth)],
+        variables: { symbol: 'CPI', definition: 'consumer price index; only the ratio matters', value: `${pointYearLabel(cpiStart)}: ${cpiStart.value}, ${cpiLatest.year}: ${cpiLatest.value}` },
+        assumptions: ['A broad national CPI basket is used; individual spending differs.', comparisonWindowNote(cpiWindow)],
         uncertainty: s.indiaConsumerPriceIndex.notes,
-        source: [
-          sourceFromSeries(s.indiaConsumerPriceIndex),
-          { title: `${s.indiaCpiCombinedFiscalRbi.source.title} (context only; not mixed into the calendar-year ratio)`, url: s.indiaCpiCombinedFiscalRbi.source.url },
-        ],
+        source: sourceFromSeries(s.indiaConsumerPriceIndex),
       }),
     });
-  } else {
-    unavailable.push(`${s.indiaConsumerPriceIndex.label}: latest stored year ${cpiLatest.year} does not support a ${state.birth.year} birth-year comparison.`);
   }
 
   addChange({
     id: 'world-life-expectancy', series: s.indiaLifeExpectancy, subject: 'Life expectancy at birth in India',
-    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }), unitPhrase: ' years ', precision: 3,
+    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }), unitPhrase: ' years ', endpointUnit: 'years', precision: 3,
   });
 
-  const literacyBirth = birthPointFor(s.indiaAdultLiteracy, { exactOnly: true });
-  const literacyLatest = s.indiaAdultLiteracy.values.at(-1);
-  if (literacyBirth && state.birth.year <= literacyLatest.year) {
-    const change = literacyLatest.value - literacyBirth.value;
+  addChange({
+    id: 'world-literacy', series: s.indiaAdultLiteracy, subject: 'India’s measured adult literacy rate',
+    valueFormatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }),
+    endpointFormatter: (value) => formatPercent(value, 1), endpointUnit: '',
+    unitPhrase: ' percentage points ', resultUnit: 'percentage points', precision: 4,
+    differenceLabel: 'measured change', exactOnly: true,
+    noteExtra: 'The age-15+ series is sparse and never interpolated; the calculation begins at the first actual observation on or after birth.',
+  });
+
+  const niftyWindow = lifetimeDataWindow(s.nifty50YearEnd, { exactOnly: true });
+  const niftyStart = niftyWindow.start;
+  const niftyLatest = niftyWindow.latest;
+  if (niftyWindow.mode === 'latest-benchmark' || Number(niftyStart.year) === Number(niftyLatest.year)) {
     stats.push({
-      id: 'world-literacy', before: 'India’s measured adult literacy rate changed by ', numeric: Math.abs(change),
-      formatter: (value) => formatNumber(value, { maximumFractionDigits: 1 }),
-      after: ` percentage points between ${literacyBirth.year} and ${literacyLatest.year}.`, classification: 'Data-based',
-      note: `From ${formatPercent(literacyBirth.value, 1)} to ${formatPercent(literacyLatest.value, 1)}. This appears only when the birth year has an actual stored observation.`,
+      id: 'world-nifty', before: 'The latest stored NIFTY 50 year-end price-index close is ',
+      numeric: niftyLatest.value, formatter: (value) => formatNumber(value, { maximumFractionDigits: 2 }),
+      after: ` in ${niftyLatest.year}.`, classification: 'Data-based',
+      note: `${niftyWindow.mode === 'latest-benchmark' ? comparisonWindowNote(niftyWindow) : 'No later year-end endpoint exists yet.'} No pre-series or future index value is invented; this is a dated market benchmark, not a personalised investment return.`,
       math: detail({
-        title: 'Change in measured adult literacy', classification: 'Data-based',
-        formula: 'percentage-point change = latest measured rate − birth-year measured rate',
-        substitution: `${formatNumber(literacyLatest.value, { maximumFractionDigits: 4 })}% − ${formatNumber(literacyBirth.value, { maximumFractionDigits: 4 })}%`,
-        result: `${formatNumber(change, { maximumFractionDigits: 3 })} percentage points`,
-        variables: 'Adult literacy is measured for people aged 15 and above in the source indicator.',
-        assumptions: 'No interpolation is used because observations are irregular survey/model results.',
-        uncertainty: s.indiaAdultLiteracy.notes, source: sourceFromSeries(s.indiaAdultLiteracy),
+        title: 'Latest NIFTY 50 endpoint', classification: 'Data-based',
+        formula: niftyWindow.mode === 'latest-benchmark' ? 'data lag = birth year − latest index year' : 'latest endpoint = stored year-end close',
+        substitution: niftyWindow.mode === 'latest-benchmark' ? `${state.birth.year} − ${niftyLatest.year}` : `NIFTY[${niftyLatest.year}]`,
+        result: `${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} in ${niftyLatest.year}`,
+        variables: 'This is a price index, not a total-return index.',
+        assumptions: 'No pre-inception value, future value or investment return is invented.',
+        uncertainty: s.nifty50YearEnd.notes,
+        source: { title: `NSE source for the ${niftyLatest.year} endpoint`, url: niftyLatest.sourceUrl || s.nifty50YearEnd.source.url },
       }),
     });
   } else {
-    unavailable.push(`${s.indiaAdultLiteracy.label}: ${state.birth.year} is not an actual stored observation, and this irregular series is never interpolated.`);
-  }
-
-  const niftyBirth = birthPointFor(s.nifty50YearEnd, { exactOnly: true });
-  const niftyLatest = s.nifty50YearEnd.values.at(-1);
-  if (niftyBirth && state.birth.year <= niftyLatest.year) {
-    const growth = (niftyLatest.value / niftyBirth.value - 1) * 100;
+    const growth = (niftyLatest.value / niftyStart.value - 1) * 100;
     const direction = growth > 0 ? 'rose by ' : 'fell by ';
     stats.push({
       id: 'world-nifty',
       before: growth === 0 ? 'The NIFTY 50 year-end price index was ' : `The NIFTY 50 year-end price index ${direction}`,
       ...(growth === 0 ? { value: 'unchanged' } : { numeric: Math.abs(growth), formatter: (value) => formatPercent(value, 1) }),
-      after: ` from ${niftyBirth.year} to ${niftyLatest.year}.`, classification: 'Data-based',
-      note: `From ${formatNumber(niftyBirth.value, { maximumFractionDigits: 2 })} on ${niftyBirth.date || 'the stored December endpoint'} to ${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} on ${niftyLatest.date || 'the stored December endpoint'}. This is not a personalised investment return and excludes dividends.`,
+      after: ` ${comparisonPeriod(niftyWindow)}.`, classification: 'Data-based',
+      note: `From ${formatNumber(niftyStart.value, { maximumFractionDigits: 2 })} on ${niftyStart.date || 'the first stored endpoint'} to ${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} on ${niftyLatest.date || 'the latest stored endpoint'}. ${comparisonWindowNote(niftyWindow)} No pre-series index value is invented; this is not a personalised investment return and excludes dividends.`,
       fullValue: `${formatNumber(growth, { maximumFractionDigits: 4 })}% price-index change`,
       math: detail({
         title: 'NIFTY 50 year-end price-index growth', classification: 'Data-based',
-        formula: 'growth = (latest year-end close ÷ birth-year year-end close − 1) × 100',
-        substitution: `(${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} ÷ ${formatNumber(niftyBirth.value, { maximumFractionDigits: 2 })} − 1) × 100`,
+        formula: 'growth = (latest year-end close ÷ first comparable stored close − 1) × 100',
+        substitution: `(${formatNumber(niftyLatest.value, { maximumFractionDigits: 2 })} ÷ ${formatNumber(niftyStart.value, { maximumFractionDigits: 2 })} − 1) × 100`,
         result: formatPercent(growth, 3),
-        variables: ['Birth-year and latest values are official dated year-end index observations stored offline.', 'The 2011 value is the 30 December final-trading-day close.', 'This is a price index, not a total-return index.'],
-        assumptions: 'Endpoint comparison only; dividends, fees, taxes and intra-year changes are excluded.',
+        variables: ['The starting and latest values are official dated index observations stored offline.', 'The 2011 value is the 30 December final-trading-day close.', 'This is a price index, not a total-return index.'],
+        assumptions: [comparisonWindowNote(niftyWindow), 'Endpoint comparison only; dividends, fees, taxes and intra-year changes are excluded.'],
         uncertainty: s.nifty50YearEnd.notes,
         source: [
-          { title: `NSE source for the ${niftyBirth.year} endpoint`, url: niftyBirth.sourceUrl || s.nifty50YearEnd.source.url },
+          { title: `NSE source for the ${niftyStart.year} endpoint`, url: niftyStart.sourceUrl || s.nifty50YearEnd.source.url },
           { title: `NSE source for the ${niftyLatest.year} endpoint`, url: niftyLatest.sourceUrl || s.nifty50YearEnd.source.url },
         ],
-      }),
-    });
-  } else {
-    unavailable.push(`${s.nifty50YearEnd.label}: no verified ${state.birth.year} December endpoint is stored.`);
-  }
-
-  if (!hasPopulation) {
-    const firstYear = s.indiaPopulation.values[0].year;
-    const lastYear = s.indiaPopulation.values.at(-1).year;
-    stats.unshift({
-      id: 'world-coverage', before: 'The verified offline comparison currently covers ', value: `${firstYear}–${lastYear}`, after: '.',
-      classification: 'Data-based',
-      note: `Your birth year (${state.birth.year}) falls outside this stored series, so the site will not substitute another year or invent a value.`,
-      math: detail({
-        title: 'World-data coverage check', classification: 'Data-based',
-        formula: 'comparison available ⇔ first stored year ≤ birth year ≤ latest stored year',
-        substitution: `${firstYear} ≤ ${state.birth.year} ≤ ${lastYear}`, result: 'No valid birth-year population comparison in the offline bundle',
-        assumptions: 'No extrapolation beyond verified observations.', uncertainty: worldData.genuineLimitations,
-        source: sourceFromSeries(s.indiaPopulation),
-      }),
-    });
-  }
-
-  if (unavailable.length) {
-    stats.push({
-      id: 'world-unavailable-series', before: 'For this birth year, ', numeric: unavailable.length,
-      formatter: (value) => formatExact(Math.round(value)), after: ` requested ${plural(unavailable.length, 'comparison')} cannot be made honestly.`,
-      classification: 'Data-based',
-      note: unavailable.join(' '),
-      math: detail({
-        title: 'Unavailable birth-year comparisons', classification: 'Data-based',
-        formula: 'show comparison only if a verified birth-year observation exists, or interpolation is explicitly allowed between surrounding points',
-        substitution: `birth year = ${state.birth.year}; check each series’ coverage and interpolation policy`,
-        result: `${unavailable.length} unavailable ${plural(unavailable.length, 'comparison')}`,
-        variables: unavailable, assumptions: 'No extrapolation and no substitution of the nearest year.',
-        uncertainty: worldData.genuineLimitations,
-        source: { title: 'Local coverage rules documented in world-data.json and the project README' },
       }),
     });
   }
@@ -1452,14 +1715,20 @@ function buildWorldStats() {
 
 function renderWorldChart() {
   const series = worldData.series.indiaPopulation;
-  const allPoints = series.values.filter((point) => point.year >= Math.max(state.birth.year, series.values[0].year));
-  const points = allPoints;
+  const historical = worldData.series.indiaPopulationHistorical;
+  const primaryFirstYear = Number(series.values[0].year);
+  const historicalPoints = historical
+    ? historical.values.filter((point) => Number(point.year) >= state.birth.year && Number(point.year) < primaryFirstYear)
+    : [];
+  const primaryPoints = series.values.filter((point) => Number(point.year) >= Math.max(state.birth.year, primaryFirstYear));
+  const points = [...historicalPoints, ...primaryPoints];
+  const chartUsesHistorical = historicalPoints.length > 0;
   const width = 760;
   const height = 280;
   const padding = 42;
   dom.worldChart.replaceChildren();
   if (points.length < 2) {
-    const firstYear = series.values[0].year;
+    const firstYear = historical?.values[0].year || series.values[0].year;
     const latestYear = series.values.at(-1).year;
     const header = createElement('div', 'world-chart__header');
     header.append(
@@ -1478,7 +1747,8 @@ function renderWorldChart() {
       substitution: `${points.length} eligible observation(s) for birth year ${state.birth.year}`,
       result: 'No lifetime line drawn', variables: 'Pre-birth observations are excluded.',
       assumptions: 'The chart never extrapolates or presents pre-birth history as lifetime change.',
-      uncertainty: series.notes, source: sourceFromSeries(series),
+      uncertainty: [...(historical?.notes || []), ...series.notes],
+      source: chartUsesHistorical ? [sourceFromSeries(historical), sourceFromSeries(series)] : sourceFromSeries(series),
     });
     return;
   }
@@ -1495,7 +1765,7 @@ function renderWorldChart() {
 
   const header = createElement('div', 'world-chart__header');
   const heading = createElement('h3', '', 'India’s population in the stored data');
-  const meta = createElement('p', '', `${yearMin}–${yearMax} · latest published year shown`);
+  const meta = createElement('p', '', `${yearMin}–${yearMax} · ${chartUsesHistorical ? 'census anchors followed by annual estimates' : 'latest published year shown'}`);
   header.append(heading, createElement('span', 'classification', 'Data-based'), meta);
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1533,10 +1803,13 @@ function renderWorldChart() {
   mathDetails['world-chart-method'] = detail({
     title: 'Population line-chart scaling', classification: 'Data-based',
     formula: 'x = left + (year − first year)/(last year − first year) × plot width\ny = bottom − (value − minimum)/(maximum − minimum) × plot height',
-    substitution: `${points.length} stored annual observations from ${yearMin} through ${yearMax}`, result: 'Each observation is mapped linearly to one SVG point',
+    substitution: `${points.length} stored observations from ${yearMin} through ${yearMax}`, result: 'Each observation is mapped linearly to one SVG point',
     variables: ['x and y are SVG coordinates.', 'The vertical axis is scaled to the displayed data range and does not begin at zero.'],
-    assumptions: 'Lines connect annual observations to make the direction legible; they do not create new official measurements between years.',
-    uncertainty: series.notes, source: sourceFromSeries(series),
+    assumptions: chartUsesHistorical
+      ? 'The early points are official decennial census anchors; the annual World Bank estimate series begins in 1960. A connecting line makes direction legible but does not erase that method change or create new observations.'
+      : 'Lines connect annual observations to make the direction legible; they do not create new official measurements between years.',
+    uncertainty: [...(chartUsesHistorical ? historical.notes : []), ...series.notes],
+    source: chartUsesHistorical ? [sourceFromSeries(historical), sourceFromSeries(series)] : sourceFromSeries(series),
   });
 }
 
@@ -1848,19 +2121,20 @@ function renderReport() {
   addReportItem(grid, 'Exact', 'Number fingerprint', p.prime ? 'prime' : p.factorizationText, `N = ${formatExact(state.ageDays)}; test divisors through √N`, 'fingerprint');
 
   const population = worldData.series.indiaPopulation;
-  const populationBirth = birthPointFor(population);
-  const populationLatest = population.values.at(-1);
-  if (populationBirth && state.birth.year <= populationLatest.year) {
+  const populationWindow = lifetimeDataWindow(population);
+  const populationStart = populationWindow.start;
+  const populationLatest = populationWindow.latest;
+  if (populationWindow.mode !== 'latest-benchmark' && Number(populationStart.year) !== Number(populationLatest.year)) {
     addReportItem(
       grid,
       'Data-based',
-      `India population change, ${populationBirth.year}–${populationLatest.year}`,
-      formatCompactValue(populationLatest.value - populationBirth.value),
-      'latest published population − birth-year population',
+      `India population change, ${pointYearLabel(populationStart)}–${populationLatest.year}`,
+      formatCompactValue(populationLatest.value - populationStart.value),
+      'latest published population − first comparable lifetime population',
       'globe',
     );
   } else {
-    addReportItem(grid, 'Data-based', 'World-data coverage', 'birth year unavailable', `${population.values[0].year}–${populationLatest.year} stored; no extrapolation`, 'globe');
+    addReportItem(grid, 'Data-based', `Latest India population benchmark, ${populationLatest.year}`, formatCompactValue(populationLatest.value), 'latest stored value; no future value invented', 'globe');
   }
   addReportItem(grid, 'Estimated', 'Distance around the Sun', formatDistanceKilometres(space.distanceAroundSunKilometres), `${formatExact(space.constants.earthOrbitalSpeedKilometresPerHour)} km/h × age hours`, 'orbit');
 
@@ -1872,6 +2146,9 @@ function renderReport() {
   const sources = createElement('p', 'report-sheet__sources');
   sources.append(document.createTextNode('Compact sources: '));
   [
+    ...(populationWindow.crossSeries
+      ? [{ title: 'Census of India — historical population', url: populationWindow.startSeries.source.url }]
+      : []),
     { title: 'World Bank — India population', url: worldData.series.indiaPopulation.source.url },
     BIOLOGY_MODEL_SOURCE,
     SPACE_SOURCES.earthAndMoon,
@@ -2095,7 +2372,7 @@ function updateBirthdayPicker(value = dom.birthDate.value, { syncText = true } =
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) {
     if (syncText) dom.birthDateText.value = '';
-    dom.birthDateHint.textContent = 'Type DD / MM / YYYY, or use the calendar';
+    dom.birthDateHint.textContent = `Type DD / MM / YYYY (${MINIMUM_BIRTH_YEAR} or later), or use the calendar`;
     dom.birthdayPicker.classList.remove('has-value');
     return;
   }
@@ -2111,8 +2388,11 @@ function updateBirthdayPicker(value = dom.birthDate.value, { syncText = true } =
 function calculateLife(dateValue, { scroll = true, preservedModel = null } = {}) {
   const now = new Date();
   const validation = validateBirthDate(dateValue, now);
-  if (!validation.valid) {
-    dom.formError.textContent = validation.message || 'Enter a valid date of birth.';
+  const beforeSupportedRange = validation.valid && validation.date.year < MINIMUM_BIRTH_YEAR;
+  if (!validation.valid || beforeSupportedRange) {
+    dom.formError.textContent = beforeSupportedRange
+      ? `Enter a date on or after 1 January ${MINIMUM_BIRTH_YEAR}.`
+      : validation.message || 'Enter a valid date of birth.';
     dom.formError.hidden = false;
     dom.birthDateText.setAttribute('aria-invalid', 'true');
     dom.birthDateText.focus();
@@ -2255,12 +2535,13 @@ dom.birthDateText.addEventListener('input', () => {
   dom.birthDateText.removeAttribute('aria-invalid');
   dom.formError.hidden = true;
   dom.birthdayPicker.classList.remove('has-value');
-  dom.birthDateHint.textContent = 'Type DD / MM / YYYY, or use the calendar';
+  dom.birthDateHint.textContent = `Type DD / MM / YYYY (${MINIMUM_BIRTH_YEAR} or later), or use the calendar`;
 });
 
 dom.birthDateText.addEventListener('blur', () => {
   const normalised = normaliseDateInput(dom.birthDateText.value);
-  if (!normalised || !validateBirthDate(normalised, new Date()).valid) return;
+  const validation = normalised ? validateBirthDate(normalised, new Date()) : null;
+  if (!validation?.valid || validation.date.year < MINIMUM_BIRTH_YEAR) return;
   dom.birthDate.value = normalised;
   updateBirthdayPicker(normalised);
 });
@@ -2293,9 +2574,11 @@ document.addEventListener('visibilitychange', () => {
 });
 
 dom.birthDate.max = localIsoDate();
+dom.birthDate.min = `${MINIMUM_BIRTH_YEAR}-01-01`;
 try {
   const recentDate = localStorage.getItem(STORAGE_KEY);
-  if (recentDate && validateBirthDate(recentDate, new Date()).valid) dom.birthDate.value = recentDate;
+  const recentValidation = recentDate ? validateBirthDate(recentDate, new Date()) : null;
+  if (recentValidation?.valid && recentValidation.date.year >= MINIMUM_BIRTH_YEAR) dom.birthDate.value = recentDate;
 } catch {
   // Privacy mode or storage restrictions simply leave the field empty.
 }
