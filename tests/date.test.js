@@ -7,12 +7,22 @@ import {
   elapsedTime,
   exactCalendarAge,
   isLeapYear,
+  normaliseDateInput,
   parseLocalDate,
   percentageOfCentury,
   validateBirthDate,
 } from "../src/calculations/date.js";
 
 describe("calendar calculations", () => {
+  it("normalises natural day-month-year typing", () => {
+    expect(normaliseDateInput("18 / 07 / 2011")).toBe("2011-07-18");
+    expect(normaliseDateInput("18-07-2011")).toBe("2011-07-18");
+    expect(normaliseDateInput("1/7/2011")).toBe("2011-07-01");
+    expect(normaliseDateInput("18072011")).toBe("2011-07-18");
+    expect(normaliseDateInput("2011-7-18")).toBe("2011-07-18");
+    expect(normaliseDateInput("not a date")).toBeNull();
+  });
+
   it("uses the Gregorian leap-year rules", () => {
     expect(isLeapYear(2012)).toBe(true);
     expect(isLeapYear(2000)).toBe(true);

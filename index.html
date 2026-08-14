@@ -88,14 +88,14 @@
 
         <form class="birth-form" id="birth-form" novalidate>
           <div class="birthday-control">
-            <label for="birth-date">When were you born?</label>
+            <label for="birth-date-text">When were you born?</label>
             <div class="birthday-picker" id="birthday-picker">
-              <svg class="birthday-picker__icon" aria-hidden="true"><use href="#icon-calendar"></use></svg>
               <span class="birthday-picker__copy">
-                <input id="birth-date" name="birthDate" type="date" required autocomplete="bday" aria-describedby="birth-date-hint form-error" />
-                <small id="birth-date-hint">Type the date or use the calendar button</small>
+                <input class="birthday-picker__text" id="birth-date-text" name="birthDateText" type="text" required autocomplete="bday" inputmode="numeric" maxlength="14" placeholder="DD / MM / YYYY" spellcheck="false" aria-describedby="birth-date-hint form-error" />
+                <small id="birth-date-hint">Type DD / MM / YYYY, or use the calendar</small>
               </span>
               <button class="birthday-picker__action" id="open-calendar" type="button" aria-label="Open calendar"><svg aria-hidden="true"><use href="#icon-calendar"></use></svg><span>Calendar</span></button>
+              <input class="birthday-picker__native" id="birth-date" type="date" tabindex="-1" aria-hidden="true" />
             </div>
           </div>
           <p class="form-error" id="form-error" role="alert" hidden></p>

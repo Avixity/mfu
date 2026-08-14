@@ -22,7 +22,8 @@ Results use the visitor's selected date and the device's current calendar date, 
 
 ## What is included
 
-- Safe local-date validation, leap-day handling, UTC-normalised whole-day arithmetic, and a live Estimated clock for seconds, heartbeats, blood flow, breaths, and blinks.
+- A normal `DD / MM / YYYY` typing field with flexible separator-free input, one calendar button, safe local-date validation, and leap-day handling.
+- UTC-normalised whole-day arithmetic and a live Estimated clock for seconds, heartbeats, blood flow, breaths, and blinks.
 - Exact weekday, Monday, weekend-period, birthday, century, age-year, calendar-year-fraction, and meteorological-season calculations.
 - Twelve clearly labelled educational body estimates, including piecewise age-banded sleep.
 - A full completed-day number fingerprint: bases, Roman numerals, factorisation, divisor statistics, sequence tests, palindromic and prime milestones, digit arrangements, and a seconds-to-decades logarithmic view.
@@ -93,7 +94,7 @@ There is no service worker or installable PWA. “Offline” means the prepared 
 
 1. Run `npm run build` before the exhibition and start `npm run preview -- --host 127.0.0.1` on the laptop.
 2. Open the preview URL in a current browser, use full-screen mode, and keep browser zoom near 100%.
-3. Let each visitor choose their own birthday using the styled native calendar control.
+3. Let each visitor type their birthday normally or use the single calendar button.
 4. Open **Show the maths** beneath selected results to discuss formula, substitution, units, assumptions, uncertainty, and source.
 5. Use the Estimate Lab to demonstrate direct proportion and sensitivity. Heartbeats are shown as `H(r) = age in minutes x r`; the gradient is the visitor's age in minutes.
 6. Use **Download report** to save a self-contained HTML copy, or **Print report** to open the browser print dialog. Print CSS selects A4, uses 12 mm margins, removes controls and colour decoration, and keeps a compact two-column report. The print dialog can also save a PDF.
@@ -449,7 +450,7 @@ Most biological constants other than sleep are presented honestly as explicit ed
 
 ## Testing
 
-The unit suite currently contains **46 tests across six files**:
+The unit suite currently contains **47 tests across six files**:
 
 - Gregorian leap years, impossible and future dates, UTC whole-day differences, exact calendar age, 29 February anniversaries, weekday/leap-day counts, date-based sub-day modelling, and century percentages;
 - prime detection, complete prime factorisation, divisor count/sum, palindromes, triangular/square/Fibonacci tests, digital roots, Roman numerals, special-number milestones, digit arrangements, and both birthday probabilities;

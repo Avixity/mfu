@@ -203,7 +203,7 @@ body:not(.has-results) .skip-link,
 .birthday-picker {
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.9rem;
   align-items: center;
   min-height: 5.25rem;
@@ -233,25 +233,6 @@ body:not(.has-results) .skip-link,
   border-color: #8b332c;
 }
 
-.birthday-picker__icon {
-  width: 2.85rem;
-  height: 2.85rem;
-  padding: 0.65rem;
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--time) 12%, transparent);
-  color: var(--time);
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.55;
-}
-
-.birthday-picker.has-value .birthday-picker__icon {
-  background: var(--time);
-  color: var(--paper);
-}
-
 .birthday-picker.has-value .birthday-picker__action {
   color: var(--time);
 }
@@ -265,12 +246,12 @@ body:not(.has-results) .skip-link,
   display: block;
 }
 
-.birthday-picker input {
+.birthday-picker__text {
   display: block;
   width: 100%;
   min-width: 0;
-  height: 2rem;
-  padding: 0;
+  height: 2.6rem;
+  padding: 0.1rem 0;
   border: 0;
   outline: 0;
   background: transparent;
@@ -283,12 +264,21 @@ body:not(.has-results) .skip-link,
   cursor: text;
 }
 
-.birthday-picker input::-webkit-calendar-picker-indicator {
-  display: none;
+.birthday-picker__text::placeholder {
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+  opacity: 1;
 }
 
-.birthday-picker input::-webkit-datetime-edit {
+.birthday-picker__native {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  width: 1px;
+  height: 1px;
   padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .birthday-picker__copy small {
@@ -336,7 +326,7 @@ body:not(.has-results) .skip-link,
   border: 0 !important;
 }
 
-.birthday-picker input:focus-visible {
+.birthday-picker__text:focus-visible {
   outline: 0;
 }
 
@@ -1857,12 +1847,7 @@ body.modal-open {
     padding-inline: 0.75rem;
   }
 
-  .birthday-picker__icon {
-    width: 2.55rem;
-    height: 2.55rem;
-  }
-
-  .birthday-picker input {
+  .birthday-picker__text {
     font-size: 1.15rem;
   }
 

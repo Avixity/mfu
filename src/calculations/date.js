@@ -22,6 +22,32 @@ export const WEEKDAY_NAMES = Object.freeze([
 
 const ISO_DATE_PATTERN = /^(\d{4,})-(\d{2})-(\d{2})$/;
 
+/**
+ * Turn visitor-friendly typing into the ISO value used by the calculation
+ * layer. The exhibition uses day-month-year order and accepts separators or
+ * eight continuous digits.
+ */
+export function normaliseDateInput(value) {
+  if (typeof value !== "string") return null;
+  const typed = value.trim();
+  if (!typed) return null;
+
+  const iso = /^(\d{4})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{1,2})$/.exec(typed);
+  if (iso) {
+    return `${iso[1]}-${iso[2].padStart(2, "0")}-${iso[3].padStart(2, "0")}`;
+  }
+
+  const dayMonthYear = /^(\d{1,2})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{4})$/.exec(typed);
+  if (dayMonthYear) {
+    return `${dayMonthYear[3]}-${dayMonthYear[2].padStart(2, "0")}-${dayMonthYear[1].padStart(2, "0")}`;
+  }
+
+  const digits = typed.replace(/\D/g, "");
+  const dayFirst = /^(\d{2})(\d{2})(\d{4})$/.exec(digits);
+  if (!dayFirst) return null;
+  return `${dayFirst[3]}-${dayFirst[2]}-${dayFirst[1]}`;
+}
+
 export function isLeapYear(year) {
   return Number.isInteger(year) && year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }

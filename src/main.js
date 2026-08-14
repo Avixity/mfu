@@ -3,6 +3,7 @@ import {
   buildTimeSummary,
   differenceInCalendarDays,
   exactCalendarAge,
+  normaliseDateInput,
   parseLocalDate,
   toUtcDayNumber,
   validateBirthDate,
@@ -94,6 +95,7 @@ const PLANET_PERIODS = Object.freeze({
 const dom = {
   form: document.querySelector('#birth-form'),
   birthDate: document.querySelector('#birth-date'),
+  birthDateText: document.querySelector('#birth-date-text'),
   birthDateHint: document.querySelector('#birth-date-hint'),
   birthdayPicker: document.querySelector('#birthday-picker'),
   openCalendar: document.querySelector('#open-calendar'),
@@ -2089,13 +2091,15 @@ function startLiveTicker() {
   syncLiveControl();
 }
 
-function updateBirthdayPicker(value = dom.birthDate.value) {
+function updateBirthdayPicker(value = dom.birthDate.value, { syncText = true } = {}) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) {
-    dom.birthDateHint.textContent = 'Type the date or use the calendar button';
+    if (syncText) dom.birthDateText.value = '';
+    dom.birthDateHint.textContent = 'Type DD / MM / YYYY, or use the calendar';
     dom.birthdayPicker.classList.remove('has-value');
     return;
   }
+  if (syncText) dom.birthDateText.value = `${match[3]} / ${match[2]} / ${match[1]}`;
   dom.birthDateHint.textContent = `Selected: ${displayDate({
     year: Number(match[1]),
     month: Number(match[2]),
@@ -2108,17 +2112,18 @@ function calculateLife(dateValue, { scroll = true, preservedModel = null } = {})
   const now = new Date();
   const validation = validateBirthDate(dateValue, now);
   if (!validation.valid) {
-    dom.birthDate.removeAttribute('aria-invalid');
     dom.formError.textContent = validation.message || 'Enter a valid date of birth.';
     dom.formError.hidden = false;
-    dom.birthDate.setAttribute('aria-invalid', 'true');
-    dom.birthDate.focus();
+    dom.birthDateText.setAttribute('aria-invalid', 'true');
+    dom.birthDateText.focus();
     return false;
   }
 
   stopLiveTicker();
   dom.formError.hidden = true;
-  dom.birthDate.removeAttribute('aria-invalid');
+  dom.birthDateText.removeAttribute('aria-invalid');
+  dom.birthDate.value = dateValue;
+  updateBirthdayPicker(dateValue);
   Object.keys(mathDetails).forEach((key) => delete mathDetails[key]);
   renderedStats.clear();
   dom.story.querySelectorAll('.is-visible').forEach((element) => element.classList.remove('is-visible'));
@@ -2211,49 +2216,64 @@ function resetExperience() {
   dom.story.hidden = true;
   document.body.classList.remove('has-results');
   dom.birthDate.value = '';
+  dom.birthDateText.value = '';
   updateBirthdayPicker('');
   dom.roomSize.value = '23';
   dom.roomSizeOutput.textContent = '23';
   dom.formError.hidden = true;
-  dom.birthDate.removeAttribute('aria-invalid');
+  dom.birthDateText.removeAttribute('aria-invalid');
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {
     // Nothing else is required if storage is unavailable.
   }
   window.scrollTo({ top: 0, behavior: 'auto' });
-  dom.birthDate.focus({ preventScroll: true });
+  dom.birthDateText.focus({ preventScroll: true });
 }
 
 dom.form.addEventListener('submit', (event) => {
   event.preventDefault();
-  calculateLife(dom.birthDate.value);
+  const normalised = normaliseDateInput(dom.birthDateText.value);
+  if (!normalised) {
+    dom.formError.textContent = 'Enter your birthday as DD / MM / YYYY.';
+    dom.formError.hidden = false;
+    dom.birthDateText.setAttribute('aria-invalid', 'true');
+    dom.birthDateText.focus();
+    return;
+  }
+  calculateLife(normalised);
 });
 
 dom.birthDate.addEventListener('input', () => {
   updateBirthdayPicker();
-  dom.birthDate.removeAttribute('aria-invalid');
+  dom.birthDateText.removeAttribute('aria-invalid');
   dom.formError.hidden = true;
 });
 
+dom.birthDateText.addEventListener('input', () => {
+  dom.birthDate.value = '';
+  dom.birthDateText.removeAttribute('aria-invalid');
+  dom.formError.hidden = true;
+  dom.birthdayPicker.classList.remove('has-value');
+  dom.birthDateHint.textContent = 'Type DD / MM / YYYY, or use the calendar';
+});
+
+dom.birthDateText.addEventListener('blur', () => {
+  const normalised = normaliseDateInput(dom.birthDateText.value);
+  if (!normalised || !validateBirthDate(normalised, new Date()).valid) return;
+  dom.birthDate.value = normalised;
+  updateBirthdayPicker(normalised);
+});
+
 dom.openCalendar.addEventListener('click', () => {
-  dom.birthDate.focus({ preventScroll: true });
   if (typeof dom.birthDate.showPicker === 'function') {
     try {
       dom.birthDate.showPicker();
     } catch {
       // The native input remains usable where showPicker is unavailable or restricted.
     }
-  }
-});
-
-dom.birthDate.addEventListener('keydown', (event) => {
-  if (!['Enter', 'ArrowDown'].includes(event.key) || typeof dom.birthDate.showPicker !== 'function') return;
-  event.preventDefault();
-  try {
-    dom.birthDate.showPicker();
-  } catch {
-    // The browser's standard date-input keyboard behaviour remains the fallback.
+  } else {
+    dom.birthDateText.focus({ preventScroll: true });
   }
 });
 

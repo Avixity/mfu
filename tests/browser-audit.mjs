@@ -126,22 +126,26 @@ try {
   }
 
   const calendarControlAudit = await evaluate(cdp, `(() => {
-    const input = document.querySelector('#birth-date');
+    const nativeInput = document.querySelector('#birth-date');
+    const textInput = document.querySelector('#birth-date-text');
+    const button = document.querySelector('#open-calendar');
     let calls = 0;
-    Object.defineProperty(input, 'showPicker', { configurable: true, value: () => { calls += 1; } });
-    document.querySelector('#open-calendar').click();
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
-    delete input.showPicker;
+    Object.defineProperty(nativeInput, 'showPicker', { configurable: true, value: () => { calls += 1; } });
+    button.click();
+    delete nativeInput.showPicker;
     return {
-      opensFromPointer: calls >= 1,
-      opensFromKeyboard: calls >= 2,
+      opensCalendar: calls === 1,
+      keyboardOperableButton: button.tagName === 'BUTTON' && !button.disabled,
+      normalTextInput: textInput.type === 'text' && textInput.placeholder === 'DD / MM / YYYY',
+      oneCalendarIcon: document.querySelectorAll('#birthday-picker svg').length === 1,
       exampleControlRemoved: document.querySelector('#demo-button') === null
     };
   })()`);
 
   await evaluate(cdp, `(() => {
-    document.querySelector('#birth-date').value = '2011-07-18';
-    document.querySelector('#birth-date').dispatchEvent(new Event('input', { bubbles: true }));
+    const input = document.querySelector('#birth-date-text');
+    input.value = '18072011';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('#birth-form').requestSubmit();
     return true;
   })()`);
@@ -310,7 +314,7 @@ try {
     probabilityStatusPresent: document.querySelector('#probability-status')?.getAttribute('role') === 'status',
     estimateStatusPresent: document.querySelector('#estimate-status')?.getAttribute('role') === 'status',
     birthTimeAbsent: !document.querySelector('#birth-time'),
-    pickerLabelled: document.querySelector('label[for="birth-date"]')?.textContent.trim() === 'When were you born?'
+    pickerLabelled: document.querySelector('label[for="birth-date-text"]')?.textContent.trim() === 'When were you born?'
   }))()`);
 
   const downloadAudit = await evaluate(cdp, `(async () => {
@@ -363,27 +367,27 @@ try {
   await evaluate(cdp, `document.querySelector('#start-again').click()`);
   const resetAudit = await evaluate(cdp, `(() => ({
     storyHidden: document.querySelector('#story').hidden,
-    dateCleared: document.querySelector('#birth-date').value === '',
+    dateCleared: document.querySelector('#birth-date').value === '' && document.querySelector('#birth-date-text').value === '',
     pickerReset: !document.querySelector('#birthday-picker').classList.contains('has-value'),
     storageCleared: localStorage.getItem('mathematics-of-you.birth-date') === null,
-    focusRestored: document.activeElement === document.querySelector('#birth-date')
+    focusRestored: document.activeElement === document.querySelector('#birth-date-text')
   }))()`);
 
   const futureAudit = await evaluate(cdp, `(() => {
     const tomorrow = new Date(Date.now() + 86_400_000);
-    const value = [tomorrow.getFullYear(), String(tomorrow.getMonth() + 1).padStart(2, '0'), String(tomorrow.getDate()).padStart(2, '0')].join('-');
-    document.querySelector('#birth-date').value = value;
+    const value = [String(tomorrow.getDate()).padStart(2, '0'), String(tomorrow.getMonth() + 1).padStart(2, '0'), tomorrow.getFullYear()].join(' / ');
+    document.querySelector('#birth-date-text').value = value;
     document.querySelector('#birth-form').requestSubmit();
     return {
       rejected: !document.querySelector('#form-error').hidden,
       message: document.querySelector('#form-error').textContent,
-      invalidMarked: document.querySelector('#birth-date').getAttribute('aria-invalid') === 'true'
+      invalidMarked: document.querySelector('#birth-date-text').getAttribute('aria-invalid') === 'true'
     };
   })()`);
 
   await evaluate(cdp, `(() => {
-    const input = document.querySelector('#birth-date');
-    input.value = '2011-07-18';
+    const input = document.querySelector('#birth-date-text');
+    input.value = '18 / 07 / 2011';
     input.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('#birth-form').requestSubmit();
   })()`);
