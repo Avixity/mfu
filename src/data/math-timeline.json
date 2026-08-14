@@ -1,0 +1,220 @@
+[
+  {
+    "year": 2011,
+    "label": "A mathematical story from 2011",
+    "title": "A knot that cannot avoid distortion",
+    "people": "John Pardon",
+    "explanation": "John Pardon proved that some torus knots cannot be drawn in three-dimensional space without large distortion: for certain pairs of points, travelling along the knot must be far longer than going straight between them. His 2011 paper answered a question Mikhail Gromov had asked in 1983, while Pardon was still an undergraduate.",
+    "whyItMatters": "The result shows that a knot's topology can place unavoidable geometric limits on how efficiently the knot can sit in space.",
+    "field": "Knot theory and geometry",
+    "sourceTitle": "On the distortion of knots on embedded surfaces — Annals of Mathematics",
+    "sourceUrl": "https://annals.math.princeton.edu/2011/174-1/p21",
+    "demo": {
+      "type": "knot",
+      "variant": "torus",
+      "caption": "A torus knot winds around the surface of a doughnut-shaped torus."
+    }
+  },
+  {
+    "year": 2012,
+    "label": "A mathematical story from 2012",
+    "title": "A bridge between two arithmetic worlds",
+    "people": "Peter Scholze",
+    "explanation": "Peter Scholze introduced perfectoid spaces, a new kind of mathematical space that lets researchers translate questions between number systems with very different arithmetic rules. This bridge allowed him to prove new cases of a long-standing prediction called the weight–monodromy conjecture.",
+    "whyItMatters": "Perfectoid spaces became a powerful new language in number theory: a hard problem can sometimes become tractable after it is moved into the right mathematical world.",
+    "field": "Number theory and algebraic geometry",
+    "sourceTitle": "Perfectoid Spaces — Publications Mathématiques de l'IHÉS",
+    "sourceUrl": "https://pmihes.centre-mersenne.org/articles/10.1007/s10240-012-0042-x/"
+  },
+  {
+    "year": 2013,
+    "label": "A mathematical story from 2013",
+    "title": "Prime numbers can keep close company",
+    "people": "Yitang Zhang",
+    "explanation": "Yitang Zhang proved that there are infinitely many pairs of consecutive prime numbers separated by no more than one fixed distance; his first bound was 70 million. This did not prove the twin-prime conjecture, where the gap must be exactly 2, but it was the first proof that some finite gap occurs infinitely often.",
+    "whyItMatters": "The result broke a major barrier in the study of primes and quickly inspired both individual improvements and a large online Polymath collaboration.",
+    "field": "Number theory",
+    "sourceTitle": "Together and Alone, Closing the Prime Gap — Quanta Magazine",
+    "sourceUrl": "https://www.quantamagazine.org/mathematicians-team-up-on-twin-primes-conjecture-20131119/",
+    "demo": {
+      "type": "prime-gaps",
+      "primes": [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31],
+      "caption": "The gaps change, but small gaps such as 2 keep returning."
+    }
+  },
+  {
+    "year": 2014,
+    "label": "A mathematical story from 2014",
+    "title": "Maryam Mirzakhani makes Fields Medal history",
+    "people": "Maryam Mirzakhani",
+    "explanation": "Maryam Mirzakhani became the first woman to receive a Fields Medal. She was honoured for studying curved surfaces and the paths that move across them, making deep connections among geometry, topology and dynamical systems.",
+    "whyItMatters": "Her work changed how mathematicians understand families of surfaces, while the award marked a historic moment for women in mathematics.",
+    "field": "Geometry and dynamical systems",
+    "sourceTitle": "Fields Medals 2014 — International Mathematical Union",
+    "sourceUrl": "https://www.mathunion.org/imu-awards/fields-medal/fields-medals-2014"
+  },
+  {
+    "year": 2015,
+    "label": "A mathematical story from 2015",
+    "title": "No infinite ±1 pattern stays perfectly balanced",
+    "people": "Terence Tao, building on the Polymath5 collaboration",
+    "explanation": "Imagine an endless sequence made only from +1 and −1. Terence Tao proved that, whatever pattern is chosen, some regularly spaced selection will have running sums that wander arbitrarily far from zero, settling the Erdős discrepancy problem posed in the 1930s.",
+    "whyItMatters": "The proof joined number theory, ideas about information and entropy, and earlier crowdsourced work on a question that is simple to state but resisted attack for about 80 years.",
+    "field": "Combinatorics and number theory",
+    "sourceTitle": "The Erdős discrepancy problem — Terence Tao",
+    "sourceUrl": "https://arxiv.org/abs/1509.05363",
+    "demo": {
+      "type": "sign-sequence",
+      "sequence": [1, -1, -1, 1, -1, 1, 1, -1, 1, -1],
+      "caption": "Group terms at regular steps and watch how their partial sums change."
+    }
+  },
+  {
+    "year": 2016,
+    "label": "A mathematical story from 2016",
+    "title": "The densest packing in eight dimensions",
+    "people": "Maryna Viazovska",
+    "explanation": "Maryna Viazovska proved that the highly symmetric E₈ arrangement is the densest possible packing of equal spheres in eight-dimensional space. Soon afterward, her method was extended with collaborators to settle the corresponding problem in 24 dimensions.",
+    "whyItMatters": "A centuries-old packing question yielded to an unexpectedly short and elegant connection between geometry, Fourier analysis and modular forms.",
+    "field": "Geometry and number theory",
+    "sourceTitle": "Sphere Packing Solved in Higher Dimensions — Quanta Magazine",
+    "sourceUrl": "https://www.quantamagazine.org/sphere-packing-solved-in-higher-dimensions-20160330/",
+    "demo": {
+      "type": "sphere-packing",
+      "dimension": 8,
+      "caption": "Packing circles is the two-dimensional analogy; Viazovska proved the optimal answer for spheres in eight dimensions."
+    }
+  },
+  {
+    "year": 2017,
+    "label": "A mathematical story from 2017",
+    "title": "A quiet proof finally gets noticed",
+    "people": "Thomas Royen",
+    "explanation": "Thomas Royen's short 2014 proof of the Gaussian correlation inequality reached wide mathematical attention in 2017 after having been largely overlooked. Roughly, for two centred, symmetric targets hit according to a bell-shaped distribution, the chance of landing in their overlap is at least the product of the two separate chances.",
+    "whyItMatters": "The theorem links probability, statistics and convex geometry, and its history shows that an important proof can be both surprisingly elementary and slow to receive attention.",
+    "field": "Probability and convex geometry",
+    "sourceTitle": "A Long-Sought Proof, Found and Almost Lost — Quanta Magazine",
+    "sourceUrl": "https://www.quantamagazine.org/statistician-proves-gaussian-correlation-inequality-20170328/"
+  },
+  {
+    "year": 2018,
+    "label": "A mathematical story from 2018",
+    "title": "A classical algorithm catches a quantum one",
+    "people": "Ewin Tang",
+    "explanation": "At age 18, Ewin Tang found a classical algorithm for a recommendation problem that ran at a speed comparable to a celebrated quantum algorithm under similar strong data-access assumptions. The result removed one proposed exponential quantum advantage and launched a wider search for 'quantum-inspired' classical algorithms.",
+    "whyItMatters": "It raised the standard for claims of quantum speedup and showed that studying quantum methods can reveal faster ideas for ordinary computers too.",
+    "field": "Theoretical computer science",
+    "sourceTitle": "Major Quantum Computing Advance Made Obsolete by Teenager — Quanta Magazine",
+    "sourceUrl": "https://www.quantamagazine.org/teenager-finds-classical-alternative-to-quantum-recommendation-algorithm-20180731/"
+  },
+  {
+    "year": 2019,
+    "label": "A mathematical story from 2019",
+    "title": "The number 42 becomes three cubes",
+    "people": "Andrew Booker and Andrew Sutherland",
+    "explanation": "Andrew Booker and Andrew Sutherland used a clever search and a worldwide network of volunteered computers to find three enormous integers whose cubes add to 42. It was the last eligible number below 100 for which no such representation was known; the discovery did not settle the general sum-of-three-cubes problem.",
+    "whyItMatters": "A school-level equation, x³ + y³ + z³ = 42, hid a search so vast that it required number theory, efficient algorithms and distributed computing.",
+    "field": "Computational number theory",
+    "sourceTitle": "Sutherland helps solve decades-old sum-of-three-cubes puzzle — MIT School of Science",
+    "sourceUrl": "https://science.mit.edu/sutherland-helps-solve-decades-old-sum-of-three-cubes-puzzle/",
+    "demo": {
+      "type": "three-cubes",
+      "target": "42",
+      "terms": ["-80538738812075974", "80435758145817515", "12602123297335631"],
+      "equation": "(-80538738812075974)³ + 80435758145817515³ + 12602123297335631³ = 42"
+    }
+  },
+  {
+    "year": 2020,
+    "label": "A mathematical story from 2020",
+    "title": "The Conway knot is not slice",
+    "people": "Lisa Piccirillo",
+    "explanation": "A knot is called smoothly slice if it can form the boundary of a smooth disk when one extra dimension is allowed. Lisa Piccirillo proved that the Conway knot is not slice, closing a question that had resisted every standard test for about 50 years.",
+    "whyItMatters": "Her indirect method, which replaced the difficult knot with another knot sharing the right four-dimensional information, gave topology a powerful new way to distinguish shapes.",
+    "field": "Knot theory and four-dimensional topology",
+    "sourceTitle": "The Conway knot is not slice — Annals of Mathematics",
+    "sourceUrl": "https://annals.math.princeton.edu/2020/191-2/p05",
+    "demo": {
+      "type": "knot",
+      "variant": "conway",
+      "caption": "The Conway knot has 11 crossings; 'not slice' describes what it cannot bound in four dimensions."
+    }
+  },
+  {
+    "year": 2021,
+    "label": "A mathematical story from 2021",
+    "title": "New building blocks for number systems",
+    "people": "Samit Dasgupta and Mahesh Kakde",
+    "explanation": "Samit Dasgupta and Mahesh Kakde gave explicit p-adic formulas for number-theoretic building blocks associated with a broad family called totally real number fields. Their work supplies a p-adic version of part of Hilbert's 12th problem; Hilbert's original request for a construction using complex numbers remains open in these cases.",
+    "whyItMatters": "The result turns abstract existence into a recipe for constructing important number-system extensions and advances a problem posed by David Hilbert in 1900.",
+    "field": "Algebraic number theory",
+    "sourceTitle": "Mathematicians Find Long-Sought Building Blocks for Special Polynomials — Quanta Magazine",
+    "sourceUrl": "https://www.quantamagazine.org/mathematicians-find-polynomial-building-blocks-hilbert-sought-20210525/"
+  },
+  {
+    "year": 2022,
+    "label": "A mathematical story from 2022",
+    "title": "A six-page proof explains sudden structure",
+    "people": "Jinyoung Park and Huy Tuan Pham",
+    "explanation": "When pieces are added at random, a property such as 'this network contains a loop through every vertex' can appear suddenly, almost like a switch. Park and Pham proved the Kahn–Kalai conjecture, showing that for a broad class of increasing properties in finite random sets, this hard-to-find threshold stays close to a simpler expectation estimate.",
+    "whyItMatters": "Their remarkably short argument automatically settles many more specific threshold questions about random graphs and related structures.",
+    "field": "Probabilistic combinatorics and graph theory",
+    "sourceTitle": "Jinyoung Park and Huy Tuan Pham Prove the Kahn-Kalai Conjecture — Stanford Mathematics",
+    "sourceUrl": "https://mathematics.stanford.edu/news/jinyoung-park-and-huy-tuan-pham-prove-kahn-kalai-conjecture"
+  },
+  {
+    "year": 2023,
+    "label": "A mathematical story from 2023",
+    "title": "One tile that can never repeat",
+    "people": "David Smith, Joseph Samuel Myers, Craig S. Kaplan and Chaim Goodman-Strauss",
+    "explanation": "David Smith discovered the 'hat', and with Myers, Kaplan and Goodman-Strauss proved that copies of this one connected shape can cover the plane but can never form a repeating pattern. The hat's tilings use rotations and reflected copies; the same team later found the related 'spectre', which forces non-repetition without reflected copies.",
+    "whyItMatters": "The discovery solved the long-standing 'einstein' or one-tile problem and created a vivid link among geometry, logical proof, computation and mathematical art.",
+    "field": "Discrete geometry and tiling theory",
+    "sourceTitle": "An aperiodic monotile — Combinatorial Theory",
+    "sourceUrl": "https://doi.org/10.5070/C64163843",
+    "demo": {
+      "type": "aperiodic-tiling",
+      "tile": "hat",
+      "usesReflections": true,
+      "caption": "The hat covers the plane only in non-repeating arrangements."
+    }
+  },
+  {
+    "year": 2024,
+    "label": "A mathematical story from 2024",
+    "title": "A vast translation dictionary is proved",
+    "people": "Dennis Gaitsgory, Sam Raskin, Dima Arinkin, Dario Beraldo, Justin Campbell, Lin Chen, Joakim Færgeman, Kevin Lin and Nick Rozenblyum",
+    "explanation": "A nine-person team released five papers proving the global, unramified geometric Langlands conjecture in its categorical form. In simpler terms, they built a rigorous translation dictionary between two very different ways of describing symmetry on curved surfaces; this does not settle every conjecture in the wider Langlands program.",
+    "whyItMatters": "The proof combines more than 800 pages and about three decades of ideas, creating connections likely to influence geometry, representation theory, number theory and mathematical physics.",
+    "field": "Algebraic geometry and representation theory",
+    "sourceTitle": "Breakthrough in the Geometric Langlands program — Max Planck Institute for Mathematics",
+    "sourceUrl": "https://www.mpim-bonn.mpg.de/node/13308"
+  },
+  {
+    "year": 2025,
+    "label": "A mathematical story from 2025",
+    "title": "The three-dimensional Kakeya conjecture is settled",
+    "people": "Hong Wang and Joshua Zahl",
+    "explanation": "Imagine a set in space that contains a unit-length needle pointing in every possible direction. Hong Wang and Joshua Zahl proved that every such Kakeya set in three-dimensional space has full Hausdorff and Minkowski dimension 3, even though its ordinary volume can be zero; higher-dimensional cases remain open.",
+    "whyItMatters": "The result resolves the three-dimensional form of a 50-year-old problem whose geometry underpins difficult questions about waves, Fourier analysis and partial differential equations.",
+    "field": "Geometric measure theory and harmonic analysis",
+    "sourceTitle": "Volume estimates for unions of convex sets, and the Kakeya set conjecture in three dimensions — Hong Wang and Joshua Zahl",
+    "sourceUrl": "https://arxiv.org/abs/2502.17655",
+    "demo": {
+      "type": "kakeya",
+      "directions": 12,
+      "caption": "Rotate one unit segment through many directions while trying to keep the swept region small."
+    }
+  },
+  {
+    "year": 2026,
+    "label": "Mathematics in 2026 so far",
+    "title": "Four Fields Medalists show mathematics' range",
+    "people": "Yu Deng, John Pardon, Jacob Tsimerman and Hong Wang",
+    "explanation": "At the 2026 International Congress of Mathematicians, the International Mathematical Union awarded Fields Medals to Yu Deng, John Pardon, Jacob Tsimerman and Hong Wang. Their cited work spans differential equations, geometry and topology, number theory, and harmonic analysis; this is a verified 2026 event, not a claim that one subjective 'biggest theorem' defines the unfinished year.",
+    "whyItMatters": "The awards offer a current snapshot of how broad modern mathematics is and recognise both outstanding existing work and the promise of future discoveries.",
+    "field": "Multiple fields",
+    "sourceTitle": "Fields Medals 2026 — International Mathematical Union",
+    "sourceUrl": "https://www.mathunion.org/imu-awards/fields-medal/fields-medals-2026"
+  }
+]

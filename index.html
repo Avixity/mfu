@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Turn a date of birth into an interactive mathematical story of time, the body, number theory, world data and space." />
+    <meta name="theme-color" content="#f5f1e8" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d1c1a'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='%23f5f1e8' stroke-width='3'/%3E%3Cpath d='M13 32h38M32 13c7 7 10 13 10 19s-3 12-10 19c-7-7-10-13-10-19s3-12 10-19Z' fill='none' stroke='%23f5f1e8' stroke-width='2'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <title>The Mathematics of You</title>
+    <script>
+      if (window.location.hash === '#main-content') {
+        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+      }
+    </script>
+  </head>
+  <body>
+    <svg class="svg-symbols" aria-hidden="true">
+      <defs>
+        <symbol id="icon-calendar" viewBox="0 0 24 24">
+          <path d="M6 2.75v3M18 2.75v3M3.5 8.25h17M5.25 4.25h13.5c1 0 1.75.8 1.75 1.75v13c0 1-.75 1.75-1.75 1.75H5.25c-1 0-1.75-.75-1.75-1.75V6c0-.95.75-1.75 1.75-1.75Z" />
+          <path d="M7 12h2M11 12h2M15 12h2M7 16h2M11 16h2M15 16h2" />
+        </symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8.75" /><path d="M12 7v5l3.5 2" />
+        </symbol>
+        <symbol id="icon-heart" viewBox="0 0 24 24">
+          <path d="M12 20.25S3.5 15.1 3.5 8.8A4.55 4.55 0 0 1 12 6.45 4.55 4.55 0 0 1 20.5 8.8c0 6.3-8.5 11.45-8.5 11.45Z" />
+          <path d="M6.75 12h2l1.2-2.4 2.1 5 1.45-2.6h3.75" />
+        </symbol>
+        <symbol id="icon-fingerprint" viewBox="0 0 24 24">
+          <path d="M5.1 10.5A7.1 7.1 0 0 1 19 12.4M7.25 18.75c1.35-1.9 1.15-4.2 1.15-6.35a3.6 3.6 0 0 1 7.2 0c0 3.6-.55 6.2-2.25 8.1M4 14.4c.2 2.1-.1 3.65-.9 5.1M11.85 10.45c-.8.1-1.3.75-1.3 1.65 0 4.4-.25 6.7-1.6 8.9M18 16.9c.45-1.7.5-3.4.35-5.05" />
+        </symbol>
+        <symbol id="icon-globe" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8.75" /><path d="M3.5 12h17M12 3.25c2.2 2.4 3.25 5.3 3.25 8.75S14.2 18.35 12 20.75C9.8 18.35 8.75 15.45 8.75 12S9.8 5.65 12 3.25Z" />
+        </symbol>
+        <symbol id="icon-orbit" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="2.2" /><ellipse cx="12" cy="12" rx="9" ry="4.2" transform="rotate(-28 12 12)" /><circle cx="19.2" cy="7.4" r="1.25" />
+        </symbol>
+        <symbol id="icon-timeline" viewBox="0 0 24 24">
+          <path d="M7 3.25v17.5M7 6h10M7 12h7M7 18h10" /><circle cx="7" cy="6" r="1.5" /><circle cx="7" cy="12" r="1.5" /><circle cx="7" cy="18" r="1.5" />
+        </symbol>
+        <symbol id="icon-sliders" viewBox="0 0 24 24">
+          <path d="M4 6h5M13 6h7M4 12h9M17 12h3M4 18h2M10 18h10" /><circle cx="11" cy="6" r="2" /><circle cx="15" cy="12" r="2" /><circle cx="8" cy="18" r="2" />
+        </symbol>
+        <symbol id="icon-report" viewBox="0 0 24 24">
+          <path d="M6 2.75h8l4 4V21.25H6Z" /><path d="M14 2.75v4h4M9 11h6M9 15h6M9 19h3" />
+        </symbol>
+        <symbol id="icon-download" viewBox="0 0 24 24">
+          <path d="M12 3.5v11M7.75 10.5 12 14.75l4.25-4.25M4 19.5h16" />
+        </symbol>
+        <symbol id="icon-print" viewBox="0 0 24 24">
+          <path d="M7 8V3.5h10V8M7 17H4.5V9.5h15V17H17M7 14h10v6.5H7Z" /><path d="M16.5 11.5h.01" />
+        </symbol>
+        <symbol id="icon-reset" viewBox="0 0 24 24">
+          <path d="M5.2 8.1A8 8 0 1 1 4.5 15M5.2 8.1V3.8M5.2 8.1h4.3" />
+        </symbol>
+        <symbol id="icon-pause" viewBox="0 0 24 24">
+          <path d="M8 5v14M16 5v14" />
+        </symbol>
+        <symbol id="icon-play" viewBox="0 0 24 24">
+          <path d="m8 5 11 7-11 7Z" />
+        </symbol>
+        <symbol id="icon-walk" viewBox="0 0 24 24">
+          <path d="M8.4 4.3c1.25-.55 2.7.2 3.2 1.7s-.1 3.2-1.35 3.75-2.7-.2-3.2-1.7.1-3.2 1.35-3.75ZM14.7 13.1c1.25-.55 2.7.2 3.2 1.7s-.1 3.2-1.35 3.75-2.7-.2-3.2-1.7.1-3.2 1.35-3.75Z" />
+          <path d="M5.2 10.5c1.7.2 3.2 1.2 4.2 2.8M12 9.7c1.4.25 2.7 1.05 3.65 2.15" />
+        </symbol>
+        <symbol id="icon-arrow" viewBox="0 0 24 24">
+          <path d="M4 12h15M14 6.5l5.5 5.5-5.5 5.5" />
+        </symbol>
+      </defs>
+    </svg>
+    <a class="skip-link" href="#main-content">Skip to the story</a>
+
+    <header class="landing" id="landing">
+      <div class="landing__mark" aria-hidden="true">
+        <svg viewBox="0 0 180 180" role="img">
+          <circle cx="90" cy="90" r="65" />
+          <ellipse cx="90" cy="90" rx="65" ry="24" />
+          <path d="M90 25c23 21 34 43 34 65s-11 44-34 65c-23-21-34-43-34-65s11-44 34-65Z" />
+          <circle class="landing__orbit-dot" cx="155" cy="90" r="5" />
+        </svg>
+      </div>
+      <div class="landing__inner">
+        <p class="eyebrow">An interactive mathematics exhibition</p>
+        <h1>The Mathematics<br />of You</h1>
+        <p class="landing__tagline">Your entire life, expressed through numbers.</p>
+
+        <form class="birth-form" id="birth-form" novalidate>
+          <div class="birthday-control">
+            <label for="birth-date">When were you born?</label>
+            <div class="birthday-picker" id="birthday-picker">
+              <svg class="birthday-picker__icon" aria-hidden="true"><use href="#icon-calendar"></use></svg>
+              <span class="birthday-picker__copy">
+                <input id="birth-date" name="birthDate" type="date" required autocomplete="bday" aria-describedby="birth-date-hint form-error" />
+                <small id="birth-date-hint">Type the date or use the calendar button</small>
+              </span>
+              <button class="birthday-picker__action" id="open-calendar" type="button" aria-label="Open calendar"><svg aria-hidden="true"><use href="#icon-calendar"></use></svg><span>Calendar</span></button>
+            </div>
+          </div>
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+          <div class="birth-form__actions">
+            <button class="button button--primary" type="submit"><span>Calculate my life</span><svg class="button__icon" aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
+          </div>
+        </form>
+      </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <article class="story" id="story" hidden>
+        <section class="opening section" id="opening" data-accent="ink" aria-labelledby="opening-title">
+          <div class="section__inner section__inner--narrow">
+            <div class="opening__layout">
+              <div class="opening__copy">
+                <div class="section-heading__index">
+                  <svg class="section-icon" aria-hidden="true"><use href="#icon-calendar"></use></svg>
+                  <p class="section-index">Your calculation begins</p>
+                </div>
+                <h2 class="opening__line" id="opening-title" tabindex="-1" aria-live="polite"></h2>
+                <p class="opening__date" id="opening-date"></p>
+                <div class="opening__actions">
+                  <button class="text-button text-button--icon reset-link" id="reset-top" type="button"><svg aria-hidden="true"><use href="#icon-reset"></use></svg><span>Choose another date</span></button>
+                  <button class="text-button text-button--icon live-toggle" id="toggle-live" type="button"><svg aria-hidden="true"><use id="toggle-live-icon" href="#icon-pause"></use></svg><span id="toggle-live-label">Pause live models</span></button>
+                </div>
+              </div>
+              <div class="opening__visual" aria-hidden="true">
+                <svg viewBox="0 0 300 300">
+                  <circle cx="150" cy="150" r="112" />
+                  <circle cx="150" cy="150" r="72" />
+                  <path d="M38 150h224M150 38v224M71 71l158 158M229 71 71 229" />
+                  <circle class="opening__visual-dot" cx="262" cy="150" r="8" />
+                  <text x="150" y="169" text-anchor="middle">∑</text>
+                </svg>
+              </div>
+            </div>
+            <div class="scroll-cue" aria-hidden="true"><span></span>Scroll through your numbers</div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--time" id="time" data-section="time" aria-labelledby="time-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-clock"></use></svg><p class="section-index">01 / Your Time</p></div>
+              <h2 id="time-title">Every ordinary second has been adding up.</h2>
+              <p>Calendar arithmetic turns the time behind you into something you can see.</p>
+            </header>
+            <div class="stat-stream" id="time-stats"></div>
+            <div class="weekday-visual reveal" id="weekday-visual" aria-label="Weekday distribution"></div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--body" id="body" data-section="body" aria-labelledby="body-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-heart"></use></svg><p class="section-index">02 / Your Living Body</p></div>
+              <h2 id="body-title">Your body has kept its own quiet rhythm.</h2>
+              <p>These are mathematical models, not medical measurements. Each begins with a rate and makes its uncertainty visible.</p>
+            </header>
+            <div class="body-pulse reveal" aria-hidden="true"><svg viewBox="0 0 800 120" preserveAspectRatio="none"><path d="M0 62h180l28-1 22-42 34 83 37-67 28 27h471" /></svg></div>
+            <div class="stat-stream" id="body-stats"></div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--fingerprint" id="fingerprint" data-section="fingerprint" aria-labelledby="fingerprint-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-fingerprint"></use></svg><p class="section-index">03 / Your Mathematical Fingerprint</p></div>
+              <h2 id="fingerprint-title">One number. A surprising amount of personality.</h2>
+              <p>Your completed age in days becomes the subject of a small number-theory investigation.</p>
+            </header>
+            <div class="number-portrait reveal" aria-hidden="true">
+              <span id="portrait-binary"></span>
+              <strong id="portrait-number"></strong>
+              <span id="portrait-factors"></span>
+            </div>
+            <div class="stat-stream stat-stream--compact" id="fingerprint-stats"></div>
+
+            <div class="probability-lab reveal" id="probability-lab">
+              <div class="subsection-heading">
+                <p class="section-index">The birthday problem</p>
+                <h3>How crowded must a room become before birthdays collide?</h3>
+              </div>
+              <div class="range-field">
+                <label for="room-size">People in the room <output id="room-size-output" for="room-size">23</output></label>
+                <input type="range" id="room-size" min="2" max="100" value="23" />
+                <div class="range-field__ends" aria-hidden="true"><span>2</span><span>100</span></div>
+              </div>
+              <div class="probability-results" id="probability-results"></div>
+              <p class="sr-only" id="probability-status" role="status" aria-live="polite" aria-atomic="true"></p>
+              <p class="explain-note">The first question compares every possible pair. The second compares only other people with you—which is why its probability is much smaller.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--world" id="world" data-section="world" aria-labelledby="world-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-globe"></use></svg><p class="section-index">04 / The World During Your Lifetime</p></div>
+              <h2 id="world-title">You changed. India changed. The planet did too.</h2>
+              <p>Stored public datasets compare your birth year with the latest published year—not with an imaginary “today”.</p>
+            </header>
+            <div class="world-chart reveal" id="world-chart"></div>
+            <div class="stat-stream" id="world-stats"></div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--space" id="space" data-section="space" aria-labelledby="space-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-orbit"></use></svg><p class="section-index">05 / Your Journey Through Space</p></div>
+              <h2 id="space-title">You have never been standing still.</h2>
+              <p>Speeds become distances; periods become orbits; centimetres become a lunar history.</p>
+            </header>
+            <div class="orbit-illustration reveal" aria-hidden="true">
+              <svg viewBox="0 0 600 280">
+                <ellipse cx="300" cy="140" rx="250" ry="102" />
+                <circle class="orbit-illustration__sun" cx="300" cy="140" r="30" />
+                <circle class="orbit-illustration__earth" cx="548" cy="122" r="10" />
+                <path d="M548 122a29 29 0 1 1-1 0" />
+                <circle class="orbit-illustration__moon" cx="570" cy="104" r="4" />
+              </svg>
+            </div>
+            <div class="stat-stream" id="space-stats"></div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--timeline" id="timeline" data-section="timeline" aria-labelledby="timeline-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-timeline"></use></svg><p class="section-index">06 / Mathematics Grew With You</p></div>
+              <h2 id="timeline-title">Mathematics grew with you.</h2>
+              <p>While you were growing, mathematics did not stand still.</p>
+            </header>
+            <p class="timeline-note reveal" id="timeline-note" hidden></p>
+            <div class="timeline" id="timeline-list"></div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--lab" id="estimate-lab" data-section="lab" aria-labelledby="lab-title">
+          <div class="section__inner">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-sliders"></use></svg><p class="section-index">07 / Estimate Lab</p></div>
+              <h2 id="lab-title">Change the assumptions. Change the answer.</h2>
+              <p>Mathematical models depend on their inputs. Move one variable and watch the model respond.</p>
+            </header>
+            <div class="estimate-lab reveal">
+              <div class="estimate-lab__controls" id="estimate-controls"></div>
+              <div class="estimate-lab__output" id="estimate-output"></div>
+              <p class="sr-only" id="estimate-status" role="status" aria-live="polite" aria-atomic="true"></p>
+              <button class="button button--secondary" id="reset-estimates" type="button">Reset assumptions</button>
+            </div>
+            <div class="lesson-strip reveal">
+              <span>variables</span><span>functions</span><span>rate of change</span><span>direct proportion</span><span>sensitivity</span><span>uncertainty</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="narrative-section section section--report" id="report" data-section="report" aria-labelledby="report-title">
+          <div class="section__inner section__inner--narrow">
+            <header class="section-heading reveal">
+              <div class="section-heading__index"><svg class="section-icon" aria-hidden="true"><use href="#icon-report"></use></svg><p class="section-index">08 / Your Mathematical Report</p></div>
+              <h2 id="report-title">A life, translated into mathematics.</h2>
+              <p>A concise record of the exact results, models and public data that shaped your story.</p>
+            </header>
+            <div class="report-sheet reveal" id="report-sheet"></div>
+            <div class="report-actions reveal">
+              <button class="button button--primary" id="download-report" type="button"><svg class="button__icon" aria-hidden="true"><use href="#icon-download"></use></svg><span>Download report</span></button>
+              <button class="button button--secondary" id="print-report" type="button"><svg class="button__icon" aria-hidden="true"><use href="#icon-print"></use></svg><span>Print report</span></button>
+              <button class="button button--secondary" id="start-again" type="button"><svg class="button__icon" aria-hidden="true"><use href="#icon-reset"></use></svg><span>Start again</span></button>
+            </div>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p>Built with arithmetic, algebra, probability, statistics and curiosity.</p>
+    </footer>
+
+    <div class="math-sheet" id="math-sheet" hidden>
+      <div class="math-sheet__backdrop" data-close-math></div>
+      <section class="math-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="math-sheet-title" tabindex="-1">
+        <div class="math-sheet__handle" aria-hidden="true"></div>
+        <button class="math-sheet__close" type="button" data-close-math aria-label="Close calculation">
+          <span aria-hidden="true">Close</span>
+        </button>
+        <div class="math-sheet__content" id="math-sheet-content"></div>
+      </section>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "title": "Offline world data for The Mathematics of You",
+  "dateAccessed": "2026-08-14",
+  "classification": "Data-based",
+  "recordSchema": "Each observation inherits its unit, source, access date and notes from the containing series unless the observation supplies a more specific source URL or note.",
+  "methodology": {
+    "latestYearRule": "Use the last non-null published observation in each series. Never label that value as today when its data year is earlier.",
+    "birthYearRule": "Use an official observation for the visitor's birth year when one exists. Do not silently substitute the closest year.",
+    "interpolationFormula": "estimated value = y0 + ((date - date0) / (date1 - date0)) * (y1 - y0)",
+    "interpolationRule": "Interpolate only between adjacent observations when the series explicitly allows it, label the result as interpolated, and name both surrounding years. No extrapolation is allowed.",
+    "purchasingPowerFormula": "equivalent rupees in latest data year = rupees in birth year * (latest CPI / birth-year CPI)",
+    "marketGrowthFormula": "price-index growth (%) = ((latest year-end close / birth-year year-end close) - 1) * 100"
+  },
+  "series": {
+    "indiaPopulation": {
+      "id": "indiaPopulation",
+      "label": "Population, total — India",
+      "indicatorCode": "SP.POP.TOTL",
+      "geography": "India",
+      "unit": "people",
+      "frequency": "annual",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 0,
+      "interpolation": {
+        "allowed": true,
+        "reason": "Population is a continuously changing stock; linear interpolation between adjacent annual mid-year estimates is a transparent approximation for an in-year date."
+      },
+      "source": {
+        "title": "World Bank Open Data — Population, total (India)",
+        "url": "https://data.worldbank.org/indicator/SP.POP.TOTL?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/SP.POP.TOTL?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "United Nations Population Division, national statistical offices and other sources listed by World Bank",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "These are data-based annual population estimates, not an exact head count.",
+        "World Bank describes total population as a mid-year estimate; the UI should format counts without implying census-level precision."
+      ],
+      "values": [
+        { "year": 2011, "value": 1261224954 },
+        { "year": 2012, "value": 1278674502 },
+        { "year": 2013, "value": 1295829511 },
+        { "year": 2014, "value": 1312277191 },
+        { "year": 2015, "value": 1328024498 },
+        { "year": 2016, "value": 1343944296 },
+        { "year": 2017, "value": 1359657400 },
+        { "year": 2018, "value": 1374659064 },
+        { "year": 2019, "value": 1389030312 },
+        { "year": 2020, "value": 1402617695 },
+        { "year": 2021, "value": 1414203896 },
+        { "year": 2022, "value": 1425423212 },
+        { "year": 2023, "value": 1438069596 },
+        { "year": 2024, "value": 1450935791 },
+        { "year": 2025, "value": 1463865525 }
+      ]
+    },
+    "worldPopulation": {
+      "id": "worldPopulation",
+      "label": "Population, total — World",
+      "indicatorCode": "SP.POP.TOTL",
+      "geography": "World",
+      "unit": "people",
+      "frequency": "annual",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 0,
+      "interpolation": {
+        "allowed": true,
+        "reason": "Population is a continuously changing stock; linear interpolation between adjacent annual mid-year estimates is a transparent approximation for an in-year date."
+      },
+      "source": {
+        "title": "World Bank Open Data — Population, total (World)",
+        "url": "https://data.worldbank.org/indicator/SP.POP.TOTL?locations=1W",
+        "apiUrl": "https://api.worldbank.org/v2/country/WLD/indicator/SP.POP.TOTL?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "United Nations Population Division, national statistical offices and other sources listed by World Bank",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "These are data-based annual population estimates, not an exact head count.",
+        "The World aggregate is the value returned for World Bank economy code WLD."
+      ],
+      "values": [
+        { "year": 2011, "value": 7086704141 },
+        { "year": 2012, "value": 7176482165 },
+        { "year": 2013, "value": 7265404737 },
+        { "year": 2014, "value": 7353532223 },
+        { "year": 2015, "value": 7441084771 },
+        { "year": 2016, "value": 7528221579 },
+        { "year": 2017, "value": 7613788655 },
+        { "year": 2018, "value": 7696159728 },
+        { "year": 2019, "value": 7777162476 },
+        { "year": 2020, "value": 7853863139 },
+        { "year": 2021, "value": 7919567995 },
+        { "year": 2022, "value": 7988550201 },
+        { "year": 2023, "value": 8062923417 },
+        { "year": 2024, "value": 8140897523 },
+        { "year": 2025, "value": 8215424893 }
+      ]
+    },
+    "indiaInternetUse": {
+      "id": "indiaInternetUse",
+      "label": "Individuals using the Internet — India",
+      "indicatorCode": "IT.NET.USER.ZS",
+      "geography": "India",
+      "unit": "% of population",
+      "frequency": "annual",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 1,
+      "interpolation": {
+        "allowed": false,
+        "reason": "The annual values combine survey and administrative evidence; adoption is not assumed to change uniformly within or across years."
+      },
+      "source": {
+        "title": "World Bank Open Data — Individuals using the Internet (% of population), India",
+        "url": "https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/IT.NET.USER.ZS?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "International Telecommunication Union, World Telecommunication/ICT Indicators Database",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "This indicator estimates the share of people who used the Internet from any location during the reference period.",
+        "Show the published data year and round only for display; retain the stored values for calculation."
+      ],
+      "values": [
+        { "year": 2011, "value": 10.07 },
+        { "year": 2012, "value": 11.10000038 },
+        { "year": 2013, "value": 12.30000019 },
+        { "year": 2014, "value": 13.5 },
+        { "year": 2015, "value": 14.89999962 },
+        { "year": 2016, "value": 16.5 },
+        { "year": 2017, "value": 18.20000076 },
+        { "year": 2018, "value": 20.0813000379384 },
+        { "year": 2019, "value": 29.52350044 },
+        { "year": 2020, "value": 43.40544313 },
+        { "year": 2021, "value": 49.2580986 },
+        { "year": 2022, "value": 55.9 },
+        { "year": 2023, "value": 60.25230026 },
+        { "year": 2024, "value": 64.9434967 },
+        { "year": 2025, "value": 70 }
+      ]
+    },
+    "indiaElectricityAccess": {
+      "id": "indiaElectricityAccess",
+      "label": "Access to electricity — India",
+      "indicatorCode": "EG.ELC.ACCS.ZS",
+      "geography": "India",
+      "unit": "% of population",
+      "frequency": "annual",
+      "coverage": { "from": 2011, "to": 2024 },
+      "latestYear": 2024,
+      "displayPrecision": 1,
+      "interpolation": {
+        "allowed": false,
+        "reason": "Use the official annual estimates; electrification programmes and estimation revisions make straight-line in-year change a poor default assumption."
+      },
+      "source": {
+        "title": "World Bank Open Data — Access to electricity (% of population), India",
+        "url": "https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/EG.ELC.ACCS.ZS?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "World Bank SDG 7.1.1 Electrification Dataset",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "Access means having an electricity source that can provide basic energy services; this is an estimated population share.",
+        "The latest available API observation is 2024, not 2026."
+      ],
+      "values": [
+        { "year": 2011, "value": 79.5 },
+        { "year": 2012, "value": 79.9 },
+        { "year": 2013, "value": 83.1 },
+        { "year": 2014, "value": 85.1 },
+        { "year": 2015, "value": 88 },
+        { "year": 2016, "value": 89.6 },
+        { "year": 2017, "value": 91.8 },
+        { "year": 2018, "value": 95.7 },
+        { "year": 2019, "value": 95.9 },
+        { "year": 2020, "value": 96.5 },
+        { "year": 2021, "value": 99.6 },
+        { "year": 2022, "value": 99.2 },
+        { "year": 2023, "value": 99.5 },
+        { "year": 2024, "value": 99.9 }
+      ]
+    },
+    "atmosphericCo2MaunaLoa": {
+      "id": "atmosphericCo2MaunaLoa",
+      "label": "Atmospheric carbon dioxide — Mauna Loa annual mean",
+      "indicatorCode": "NOAA_GML_CO2_ANNMEAN_MLO",
+      "geography": "Mauna Loa Observatory, Hawaii (with the documented 2022–2023 site interruption)",
+      "unit": "ppm dry-air mole fraction",
+      "frequency": "annual mean",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 2,
+      "interpolation": {
+        "allowed": false,
+        "reason": "The website compares published annual means; a birth-date concentration would require the separate monthly series and seasonal adjustment."
+      },
+      "source": {
+        "title": "NOAA Global Monitoring Laboratory — Mauna Loa CO₂ annual mean data",
+        "url": "https://gml.noaa.gov/ccgg/trends/data.html",
+        "dataUrl": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.csv",
+        "provider": "NOAA Global Monitoring Laboratory; Xin Lan and Ralph Keeling",
+        "fileCreated": "2026-08-05",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "CO₂ is expressed as micromoles per mole of dry air, abbreviated ppm.",
+        "NOAA says the uncertainty column is estimated from independently determined NOAA and Scripps annual means; values may receive small quality-control revisions.",
+        "Mauna Loa observations were suspended after 29 November 2022 and resumed in July 2023; observations from December 2022 to 4 July 2023 came from Maunakea Observatories, as documented in the source file."
+      ],
+      "values": [
+        { "year": 2011, "value": 391.85, "uncertainty": 0.12 },
+        { "year": 2012, "value": 394.06, "uncertainty": 0.12 },
+        { "year": 2013, "value": 396.74, "uncertainty": 0.12 },
+        { "year": 2014, "value": 398.81, "uncertainty": 0.12 },
+        { "year": 2015, "value": 401.01, "uncertainty": 0.12 },
+        { "year": 2016, "value": 404.41, "uncertainty": 0.12 },
+        { "year": 2017, "value": 406.76, "uncertainty": 0.12 },
+        { "year": 2018, "value": 408.72, "uncertainty": 0.12 },
+        { "year": 2019, "value": 411.65, "uncertainty": 0.12 },
+        { "year": 2020, "value": 414.21, "uncertainty": 0.12 },
+        { "year": 2021, "value": 416.41, "uncertainty": 0.12 },
+        { "year": 2022, "value": 418.53, "uncertainty": 0.12 },
+        { "year": 2023, "value": 421.08, "uncertainty": 0.12 },
+        { "year": 2024, "value": 424.61, "uncertainty": 0.12 },
+        { "year": 2025, "value": 427.35, "uncertainty": 0.12 }
+      ]
+    },
+    "indiaConsumerPriceIndex": {
+      "id": "indiaConsumerPriceIndex",
+      "label": "Consumer price index — India",
+      "indicatorCode": "FP.CPI.TOTL",
+      "geography": "India",
+      "unit": "index, 2010 = 100",
+      "frequency": "calendar-year annual average",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 2,
+      "preferredForPurchasingPowerComparison": true,
+      "derivedCalculation": {
+        "name": "₹100 birth-year purchasing-power equivalent",
+        "formula": "equivalent = 100 * latest CPI / birth-year CPI",
+        "classification": "Data-based",
+        "assumption": "A broad national CPI basket is used as an educational purchasing-power comparison; an individual household's spending pattern can differ substantially."
+      },
+      "interpolation": {
+        "allowed": false,
+        "reason": "The entries are annual-average indices. Use the visitor's calendar-year observation rather than manufacturing a daily CPI."
+      },
+      "source": {
+        "title": "World Bank Open Data — Consumer price index (2010 = 100), India",
+        "url": "https://data.worldbank.org/indicator/FP.CPI.TOTL?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/FP.CPI.TOTL?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "International Monetary Fund, International Financial Statistics database",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "The index ratio, not the base-year label, drives the ₹100 equivalence.",
+        "The result is a broad inflation adjustment and must not be described as an exact price for any particular item.",
+        "An RBI/NSO fiscal-year CPI Combined series is also stored below for Indian-source context, but it is not mixed with this calendar-year series."
+      ],
+      "values": [
+        { "year": 2011, "value": 108.911793364834 },
+        { "year": 2012, "value": 119.235538897084 },
+        { "year": 2013, "value": 131.18041028234 },
+        { "year": 2014, "value": 139.924446113916 },
+        { "year": 2015, "value": 146.790501522573 },
+        { "year": 2016, "value": 154.054013105393 },
+        { "year": 2017, "value": 159.18119775209 },
+        { "year": 2018, "value": 165.451068899504 },
+        { "year": 2019, "value": 171.621576003377 },
+        { "year": 2020, "value": 182.988822584425 },
+        { "year": 2021, "value": 192.378724699015 },
+        { "year": 2022, "value": 205.266241146235 },
+        { "year": 2023, "value": 216.862025027426 },
+        { "year": 2024, "value": 227.603278134168 },
+        { "year": 2025, "value": 233.063138328864 }
+      ]
+    },
+    "indiaConsumerPriceInflation": {
+      "id": "indiaConsumerPriceInflation",
+      "label": "Inflation, consumer prices — India",
+      "indicatorCode": "FP.CPI.TOTL.ZG",
+      "geography": "India",
+      "unit": "% annual change",
+      "frequency": "annual",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 1,
+      "interpolation": {
+        "allowed": false,
+        "reason": "Inflation is itself a change over a defined annual interval; interpolation between annual rates would not preserve the underlying price-index path."
+      },
+      "source": {
+        "title": "World Bank Open Data — Inflation, consumer prices (annual %), India",
+        "url": "https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/FP.CPI.TOTL.ZG?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "International Monetary Fund, International Financial Statistics database",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "This is the annual percentage change in the consumer price index; it is not cumulative inflation since birth.",
+        "Use the CPI-index ratio above for the ₹100 equivalence."
+      ],
+      "values": [
+        { "year": 2011, "value": 8.9117933648336 },
+        { "year": 2012, "value": 9.47899691419793 },
+        { "year": 2013, "value": 10.0178784746104 },
+        { "year": 2014, "value": 6.66565671867899 },
+        { "year": 2015, "value": 4.90697344127249 },
+        { "year": 2016, "value": 4.94821634062134 },
+        { "year": 2017, "value": 3.32817337461305 },
+        { "year": 2018, "value": 3.93882646691643 },
+        { "year": 2019, "value": 3.72950573539123 },
+        { "year": 2020, "value": 6.6234367762853 },
+        { "year": 2021, "value": 5.13140747176364 },
+        { "year": 2022, "value": 6.69903414079858 },
+        { "year": 2023, "value": 5.64914318907925 },
+        { "year": 2024, "value": 4.95303550973661 },
+        { "year": 2025, "value": 2.39884954182294 }
+      ]
+    },
+    "indiaLifeExpectancy": {
+      "id": "indiaLifeExpectancy",
+      "label": "Life expectancy at birth, total — India",
+      "indicatorCode": "SP.DYN.LE00.IN",
+      "geography": "India",
+      "unit": "years",
+      "frequency": "annual",
+      "coverage": { "from": 2011, "to": 2024 },
+      "latestYear": 2024,
+      "displayPrecision": 1,
+      "interpolation": {
+        "allowed": false,
+        "reason": "Use published annual demographic estimates; shocks and model revisions mean the series should not be treated as locally linear by default."
+      },
+      "source": {
+        "title": "World Bank Open Data — Life expectancy at birth, total (years), India",
+        "url": "https://data.worldbank.org/indicator/SP.DYN.LE00.IN?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/SP.DYN.LE00.IN?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "United Nations Population Division and national statistical sources listed by World Bank",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "Life expectancy at birth is a period population statistic, not a prediction of the visitor's lifespan.",
+        "The COVID-era fall and subsequent rebound are present in the published series and should not be smoothed away.",
+        "The latest available observation is 2024."
+      ],
+      "values": [
+        { "year": 2011, "value": 67.623 },
+        { "year": 2012, "value": 68.076 },
+        { "year": 2013, "value": 68.499 },
+        { "year": 2014, "value": 68.932 },
+        { "year": 2015, "value": 69.326 },
+        { "year": 2016, "value": 69.709 },
+        { "year": 2017, "value": 70.068 },
+        { "year": 2018, "value": 70.415 },
+        { "year": 2019, "value": 70.746 },
+        { "year": 2020, "value": 70.156 },
+        { "year": 2021, "value": 67.282 },
+        { "year": 2022, "value": 71.698 },
+        { "year": 2023, "value": 72.003 },
+        { "year": 2024, "value": 72.235 }
+      ]
+    },
+    "indiaAdultLiteracy": {
+      "id": "indiaAdultLiteracy",
+      "label": "Literacy rate, adult total — India",
+      "indicatorCode": "SE.ADT.LITR.ZS",
+      "geography": "India",
+      "unit": "% of people ages 15 and above",
+      "frequency": "irregular official observations",
+      "coverage": { "from": 2011, "to": 2024 },
+      "latestYear": 2024,
+      "displayPrecision": 1,
+      "displayPolicy": "Compare only when the visitor's birth year has a stored official observation. Otherwise omit the comparison and explain that no comparable birth-year observation is bundled.",
+      "interpolation": {
+        "allowed": false,
+        "reason": "Observations are sparse and can reflect different surveys or estimation rounds; straight-line interpolation would imply unsupported precision."
+      },
+      "source": {
+        "title": "World Bank Open Data — Literacy rate, adult total (% ages 15+), India",
+        "url": "https://data.worldbank.org/indicator/SE.ADT.LITR.ZS?locations=IN",
+        "apiUrl": "https://api.worldbank.org/v2/country/IND/indicator/SE.ADT.LITR.ZS?format=json&date=2011%3A2026&per_page=100",
+        "underlyingProvider": "UNESCO Institute for Statistics Data API",
+        "license": "CC BY 4.0",
+        "apiLastUpdated": "2026-07-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "Do not present this sparse series as a smooth yearly trend.",
+        "The 2023 and 2024 observations differ sharply; that is another reason to show source years and avoid interpolation.",
+        "For a 2011 birth year, both 2011 and the latest year have official observations."
+      ],
+      "values": [
+        { "year": 2011, "value": 69.3000030517578 },
+        { "year": 2012, "value": 69.8279300354369 },
+        { "year": 2018, "value": 73.6883524760717 },
+        { "year": 2019, "value": 74.8938629973395 },
+        { "year": 2020, "value": 75.5270629470344 },
+        { "year": 2021, "value": 76.0596617430205 },
+        { "year": 2022, "value": 76.3199996948242 },
+        { "year": 2023, "value": 81.6999969482422 },
+        { "year": 2024, "value": 78.1625330351403 }
+      ]
+    },
+    "indiaCpiCombinedFiscalRbi": {
+      "id": "indiaCpiCombinedFiscalRbi",
+      "label": "All-India CPI Combined annual average — RBI/NSO fiscal-year series",
+      "indicatorCode": "RBI_TABLE_37_CPI_COMBINED",
+      "geography": "India",
+      "unit": "index, 2012 = 100",
+      "frequency": "Indian fiscal year annual average",
+      "coverage": { "from": "2011-12", "to": "2023-24" },
+      "latestYear": "2023-24",
+      "displayPrecision": 1,
+      "preferredForPurchasingPowerComparison": false,
+      "interpolation": {
+        "allowed": false,
+        "reason": "The observations are fiscal-year averages; do not interpolate or combine them with the calendar-year World Bank/IMF CPI series."
+      },
+      "source": {
+        "title": "Reserve Bank of India, Handbook of Statistics on Indian Economy — Table 37: Consumer Price Index, Annual Average",
+        "url": "https://www.rbi.org.in/Scripts/PublicationsView.aspx?id=22511",
+        "underlyingProvider": "National Statistical Office, Ministry of Statistics and Programme Implementation, Government of India",
+        "publicationDate": "2024-09-13",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "CPI Combined covers rural plus urban India and was introduced from January 2011; the series uses base 2012 = 100.",
+        "This official Indian fiscal-year series is retained for source transparency and cross-checking. The website's birth-calendar-year ₹100 comparison uses the separate calendar-year CPI series above.",
+        "The cited RBI table's latest complete fiscal-year observation is 2023-24."
+      ],
+      "values": [
+        { "year": "2011-12", "value": 93.3 },
+        { "year": "2012-13", "value": 102.5 },
+        { "year": "2013-14", "value": 112.2 },
+        { "year": "2014-15", "value": 118.9 },
+        { "year": "2015-16", "value": 124.7 },
+        { "year": "2016-17", "value": 130.3 },
+        { "year": "2017-18", "value": 135.0 },
+        { "year": "2018-19", "value": 139.6 },
+        { "year": "2019-20", "value": 146.3 },
+        { "year": "2020-21", "value": 155.3 },
+        { "year": "2021-22", "value": 163.8 },
+        { "year": "2022-23", "value": 174.7 },
+        { "year": "2023-24", "value": 184.1 }
+      ]
+    },
+    "nifty50YearEnd": {
+      "id": "nifty50YearEnd",
+      "label": "NIFTY 50 price index — year-end close",
+      "indicatorCode": "NSE_NIFTY50_YEAR_END_CLOSE",
+      "geography": "India",
+      "unit": "index points",
+      "frequency": "last available official December close for each calendar year",
+      "coverage": { "from": 2011, "to": 2025 },
+      "latestYear": 2025,
+      "displayPrecision": 2,
+      "derivedCalculation": {
+        "name": "NIFTY 50 price-index growth",
+        "formula": "growth (%) = ((latest year-end close / birth-year year-end close) - 1) * 100",
+        "classification": "Data-based",
+        "assumption": "This compares year-end price-index levels. It excludes dividends, fees, taxes and the exact timing of a visitor's birth, so it is not an investment-return calculation."
+      },
+      "interpolation": {
+        "allowed": false,
+        "reason": "Market prices are not linearly interpolated. Use only the stored official closing observations."
+      },
+      "source": {
+        "title": "National Stock Exchange of India — Historical Index Data",
+        "url": "https://www.nseindia.com/reports-indices-historical-index-data",
+        "archivePattern": "NSE archives filename pattern: ind_close_all_DDMMYYYY.csv (substitute the requested date)",
+        "provider": "National Stock Exchange of India",
+        "dateAccessed": "2026-08-14"
+      },
+      "notes": [
+        "NIFTY 50 was named S&P CNX Nifty in 2012, CNX Nifty in 2013–2014, and Nifty 50 in later archive files; these observations refer to the same benchmark lineage.",
+        "The 2011 point is the 30 December final-trading-day close shown through NSE's official historical-index data service; the later static daily archive pattern was not available for that date.",
+        "Do not describe this price-index change as money earned: it excludes dividends and all investor-specific costs."
+      ],
+      "values": [
+        { "year": 2011, "date": "2011-12-30", "value": 4624.30, "sourceUrl": "https://www.nseindia.com/reports-indices-historical-index-data", "note": "Final trading-day close for calendar year 2011; verified through NSE's official historical-index data service." },
+        { "year": 2012, "date": "2012-12-31", "value": 5905.10, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122012.csv" },
+        { "year": 2013, "date": "2013-12-31", "value": 6304.00, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122013.csv" },
+        { "year": 2014, "date": "2014-12-31", "value": 8282.70, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122014.csv" },
+        { "year": 2015, "date": "2015-12-31", "value": 7946.35, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122015.csv" },
+        { "year": 2016, "date": "2016-12-30", "value": 8185.80, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_30122016.csv" },
+        { "year": 2017, "date": "2017-12-29", "value": 10530.70, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_29122017.csv" },
+        { "year": 2018, "date": "2018-12-31", "value": 10862.55, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122018.csv" },
+        { "year": 2019, "date": "2019-12-31", "value": 12168.45, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122019.csv" },
+        { "year": 2020, "date": "2020-12-31", "value": 13981.75, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122020.csv" },
+        { "year": 2021, "date": "2021-12-31", "value": 17354.05, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122021.csv" },
+        { "year": 2022, "date": "2022-12-30", "value": 18105.30, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_30122022.csv" },
+        { "year": 2023, "date": "2023-12-29", "value": 21731.40, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_29122023.csv" },
+        { "year": 2024, "date": "2024-12-31", "value": 23644.80, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122024.csv" },
+        { "year": 2025, "date": "2025-12-31", "value": 26129.60, "sourceUrl": "https://archives.nseindia.com/content/indices/ind_close_all_31122025.csv" }
+      ]
+    }
+  },
+  "genuineLimitations": [
+    "The compact offline bundle begins in 2011. A visitor born earlier needs an expanded historical file or a clearly stated unavailable comparison; the UI must not reuse 2011 as though it were their birth-year value.",
+    "Different series end in different years. The interface must print each series' actual latest year.",
+    "World Bank values can be revised after this access date. The saved observations intentionally remain frozen so the exhibition continues to work offline and reproducibly.",
+    "Adult-literacy observations are irregular and must not be interpolated.",
+    "The NIFTY series is a price-index comparison at annual endpoints, not a personalised investment return."
+  ]
+}
